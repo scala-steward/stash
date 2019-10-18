@@ -3,10 +3,10 @@ version := "0.1"
 scalaVersion := "2.13.1"
 
 libraryDependencies ++= Seq(
-  "com.typesafe.slick"         %% "slick"          % "3.3.2",
-  "com.typesafe.slick"         %% "slick-hikaricp" % "3.3.2",
-  "org.postgresql"             % "postgresql"      % "42.2.5",
-  "ch.qos.logback"             % "logback-classic" % "1.2.3",
-  "com.typesafe.scala-logging" %% "scala-logging"  % "3.9.2",
-  "org.scalatest"              %% "scalatest"      % "3.0.8" % Test
+  "org.postgresql"             % "postgresql"        % "42.2.8",
+  "io.monix"                   %% "monix"            % "3.0.0",
+  "io.getquill"                %% "quill-jdbc-monix" % "3.4.10",
+  "ch.qos.logback"             % "logback-classic"   % "1.2.3",
+  "com.typesafe.scala-logging" %% "scala-logging"    % "3.9.2",
+  "org.scalatest"              %% "scalatest"        % "3.0.8" % Test
 )

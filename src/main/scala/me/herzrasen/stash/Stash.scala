@@ -1,31 +1,25 @@
 package me.herzrasen.stash
 import com.typesafe.scalalogging.StrictLogging
 
-import slick.jdbc.PostgresProfile.api._
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
-import me.herzrasen.stash.db.Users
 import me.herzrasen.stash.domain.User
 import me.herzrasen.stash.domain.Roles.{User => UserRole}
+import me.herzrasen.stash.domain.Shop
+import io.getquill.PostgresMonixJdbcContext
+import io.getquill.SnakeCase
+import me.herzrasen.stash.repository.PostgresShopRepository
+import me.herzrasen.stash.repository.ShopRepository
+import io.getquill.SqlMirrorContext
 
 object Stash extends App with StrictLogging {
   logger.info("Stash server starting...")
 
-  import scala.concurrent.ExecutionContext.Implicits.global
+  implicit val ctx: PostgresMonixJdbcContext[SnakeCase] =
+    new PostgresMonixJdbcContext(SnakeCase, "postgres")
 
-  val users = TableQuery[Users]
+  val repository: ShopRepository = new PostgresShopRepository()
 
-  val db = Database.forConfig("postgres")
-  try {
-    Await.result(
-      db.run(
-        DBIO.seq(
-          users.schema.createIfNotExists,
-          users += User(0, "Jessica", "fooooooo", UserRole),
-          users.result.map(println)
-        )
-      ),
-      Duration.Inf
-    )
-  } finally db.close()
+  val shop = Await.result(repository.create(Shop(1, "Rossmann")), Duration.Inf)
+  logger.info(s"Created shop: $shop")
 }

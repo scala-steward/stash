@@ -1,3 +1,3 @@
-package me.herzrasen.stash.model
+package me.herzrasen.stash.domain
 
-case class Shop(id: Long, name: String)
+case class Shop(id: Int, name: String)
