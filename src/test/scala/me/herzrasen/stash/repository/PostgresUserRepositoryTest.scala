@@ -1,4 +1,5 @@
 package me.herzrasen.stash.repository
+
 import org.scalatest.FlatSpec
 import org.scalatest.Matchers
 import com.dimafeng.testcontainers.ForAllTestContainer
@@ -6,17 +7,17 @@ import com.dimafeng.testcontainers.PostgreSQLContainer
 import java.sql.DriverManager
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
-import org.scalatest.BeforeAndAfterEach
-import org.scalatest.BeforeAndAfterAll
 import io.getquill.PostgresMonixJdbcContext
 import io.getquill.SnakeCase
 import io.getquill.context.monix.Runner
-import me.herzrasen.stash.domain.Shop
+import me.herzrasen.stash.domain.User
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
 import scala.concurrent.Future
+import me.herzrasen.stash.domain.User
+import me.herzrasen.stash.domain.Roles.{Admin => AdminRole, User => UserRole}
 
-class PostgresShopRepositoryTest
+class PostgresUserRepositoryTest
     extends FlatSpec
     with Matchers
     with ForAllTestContainer {
@@ -40,7 +41,7 @@ class PostgresShopRepositoryTest
     )
 
     val createTableStatement: String =
-      "CREATE TABLE shop (id SERIAL PRIMARY KEY, name VARCHAR UNIQUE)"
+      "CREATE TABLE stash_user (id SERIAL PRIMARY KEY, name VARCHAR UNIQUE, password VARCHAR, role VARCHAR(12))"
 
     val createTable = connection.prepareStatement(createTableStatement)
     createTable.execute()
@@ -56,7 +57,7 @@ class PostgresShopRepositoryTest
     )
 
     val dropTableStatement: String =
-      "DROP TABLE IF EXISTS shop"
+      "DROP TABLE IF EXISTS stash_user"
 
     val dropTable = connection.prepareStatement(dropTableStatement)
     dropTable.execute()
@@ -75,7 +76,7 @@ class PostgresShopRepositoryTest
     |  connectionTimeout=30000  
     | }""".stripMargin)
 
-  "A Shop" should "be inserted" in {
+  "A User" should "be inserted" in {
     dropTable()
     createTable()
 
@@ -86,11 +87,18 @@ class PostgresShopRepositoryTest
         Runner.default
       )
 
-    val repository: ShopRepository = new PostgresShopRepository()
+    val repository: UserRepository = new PostgresUserRepository()
 
-    val foo = Await.result(repository.create(Shop(0, "Foo")), Duration.Inf)
+    val foo = Await.result(
+      repository.create(
+        User(0, "A User", "apassword", UserRole)
+      ),
+      Duration.Inf
+    )
     foo.id should not equal 0
-    foo.name shouldEqual "Foo"
+    foo.name shouldEqual "A User"
+    foo.password shouldEqual "apassword"
+    foo.role shouldEqual UserRole
   }
 
   it should "be found" in {
@@ -104,14 +112,17 @@ class PostgresShopRepositoryTest
         Runner.default
       )
 
-    val repository: ShopRepository = new PostgresShopRepository()
+    val repository: UserRepository = new PostgresUserRepository()
 
-    val foo = Await.result(repository.create(Shop(0, "Foo")), Duration.Inf)
+    val aUser = Await.result(
+      repository.create(User(0, "A User", "auser", UserRole)),
+      Duration.Inf
+    )
 
-    val other = Await.result(repository.find(foo.id), Duration.Inf)
+    val other = Await.result(repository.find(aUser.id), Duration.Inf)
 
     other shouldBe defined
-    other.get shouldEqual foo
+    other.get shouldEqual aUser
   }
 
   it should "be deleted" in {
@@ -125,18 +136,21 @@ class PostgresShopRepositoryTest
         Runner.default
       )
 
-    val repository: ShopRepository = new PostgresShopRepository()
+    val repository: UserRepository = new PostgresUserRepository()
 
-    val foo = Await.result(repository.create(Shop(0, "Foo")), Duration.Inf)
+    val foo = Await.result(
+      repository.create(User(0, "A User", "auser", UserRole)),
+      Duration.Inf
+    )
 
     Await.result(repository.delete(foo), Duration.Inf)
 
-    val shops = Await.result(repository.findAll(), Duration.Inf)
+    val Users = Await.result(repository.findAll(), Duration.Inf)
 
-    shops shouldBe empty
+    Users shouldBe empty
   }
 
-  "Searching for a non-existant Shop" should "not cause failure" in {
+  "Searching for a non-existant User" should "not cause failure" in {
     dropTable()
     createTable()
 
@@ -147,13 +161,13 @@ class PostgresShopRepositoryTest
         Runner.default
       )
 
-    val repository: ShopRepository = new PostgresShopRepository()
+    val repository: UserRepository = new PostgresUserRepository()
 
-    val shop = Await.result(repository.find(9), Duration.Inf)
-    println(s"$shop")
+    val User = Await.result(repository.find(9), Duration.Inf)
+    println(s"$User")
   }
 
-  "All Shops" should "be found" in {
+  "All Users" should "be found" in {
     dropTable()
     createTable()
 
@@ -166,25 +180,23 @@ class PostgresShopRepositoryTest
 
     import scala.concurrent.ExecutionContext.Implicits.global
 
-    val repository: ShopRepository = new PostgresShopRepository()
+    val repository: UserRepository = new PostgresUserRepository()
 
     Await.result(
       Future.sequence(
         List(
-          repository.create(Shop(0, "Foo")),
-          repository.create(Shop(0, "Bar")),
-          repository.create(Shop(0, "Baz"))
+          repository.create(User(0, "A User", "auser", UserRole)),
+          repository.create(User(0, "An Admin", "anadmin", AdminRole))
         )
       ),
       Duration.Inf
     )
 
-    val shops = Await.result(repository.findAll(), Duration.Inf)
-    shops should have size 3
+    val Users = Await.result(repository.findAll(), Duration.Inf)
+    Users should have size 2
 
-    shops.find(_.name == "Foo") shouldBe defined
-    shops.find(_.name == "Bar") shouldBe defined
-    shops.find(_.name == "Baz") shouldBe defined
+    Users.find(_.name == "A User") shouldBe defined
+    Users.find(_.name == "An Admin") shouldBe defined
   }
 
 }

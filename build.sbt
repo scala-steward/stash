@@ -22,3 +22,5 @@ libraryDependencies ++= Seq(
 )
 
 coverageEnabled := true
+
+testOptions in Test += Tests.Argument("-oF")

@@ -17,8 +17,7 @@ import io.getquill.PostgresDialect
 
 class PostgresShopRepository()(
     implicit ctx: PostgresMonixJdbcContext[SnakeCase]
-) extends ShopRepository
-    with StrictLogging {
+) extends ShopRepository {
 
   implicit val scheduler: Scheduler = monix.execution.Scheduler.global
 
@@ -52,7 +51,7 @@ class PostgresShopRepository()(
       }
     }.runToFuture
 
-  def find(id: Int): Future[Shop] =
+  def find(id: Int): Future[Option[Shop]] =
     ctx
       .run {
         quote {
@@ -60,6 +59,6 @@ class PostgresShopRepository()(
         }
       }
       .runToFuture
-      .map(_.head)
+      .map(_.headOption)
 
 }
