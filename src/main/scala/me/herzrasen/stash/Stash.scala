@@ -20,6 +20,6 @@ object Stash extends App with StrictLogging {
 
   val repository: ShopRepository = new PostgresShopRepository()
 
-  val shop = Await.result(repository.create(Shop(1, "Rossmann")), Duration.Inf)
+  val shop = Await.result(repository.create(Shop(1, "Edeka")), Duration.Inf)
   logger.info(s"Created shop: $shop")
 }
