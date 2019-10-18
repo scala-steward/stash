@@ -8,3 +8,7 @@ jdk:
   - oraclejdk11
 services:
   - docker
+script:
+  - sbt clean coverage test coverageReport
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
