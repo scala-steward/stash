@@ -2,7 +2,7 @@ package me.herzrasen.stash.domain
 
 import me.herzrasen.stash.domain.Roles._
 
-case class User(id: Int, name: String, password: Array[Byte], role: Role)
+case class User(id: Int, name: String, password: String, role: Role)
 
 object User {
 
@@ -10,7 +10,7 @@ object User {
     """CREATE TABLE IF NOT EXISTS stash_user (
     | id SERIAL PRIMARY KEY,
     | name VARCHAR NOT NULL UNIQUE,
-    | password BYTEA NOT NULL,
+    | password VARCHAR NOT NULL,
     | role VARCHAR(16) NOT NULL
   )""".stripMargin
 

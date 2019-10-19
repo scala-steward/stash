@@ -1,25 +1,28 @@
 package me.herzrasen.stash
 import com.typesafe.scalalogging.StrictLogging
 
-import scala.concurrent.Await
-import scala.concurrent.duration.Duration
-import me.herzrasen.stash.domain.User
-import me.herzrasen.stash.domain.Roles.{User => UserRole}
-import me.herzrasen.stash.domain.Shop
 import io.getquill.PostgresMonixJdbcContext
 import io.getquill.SnakeCase
-import me.herzrasen.stash.repository.PostgresShopRepository
-import me.herzrasen.stash.repository.ShopRepository
-import io.getquill.SqlMirrorContext
+import akka.http.scaladsl.Http
+import me.herzrasen.stash.http.server.UserRoute
+import akka.actor.ActorSystem
+import me.herzrasen.stash.repository.UserRepository
+import me.herzrasen.stash.repository.PostgresUserRepository
+import akka.http.scaladsl.server.Route
+import akka.stream.ActorMaterializer
 
 object Stash extends App with StrictLogging {
   logger.info("Stash server starting...")
 
+  implicit val system: ActorSystem = ActorSystem("stash")
+  implicit val am: ActorMaterializer = ActorMaterializer()
+
   implicit val ctx: PostgresMonixJdbcContext[SnakeCase] =
     new PostgresMonixJdbcContext(SnakeCase, "postgres")
 
-  val repository: ShopRepository = new PostgresShopRepository()
+  implicit val repository: UserRepository = new PostgresUserRepository()
 
-  val shop = Await.result(repository.create(Shop(1, "Edeka")), Duration.Inf)
-  logger.info(s"Created shop: $shop")
+  val userRoute: Route = new UserRoute().route
+
+  Http().bindAndHandle(userRoute, "0.0.0.0", 8080)
 }

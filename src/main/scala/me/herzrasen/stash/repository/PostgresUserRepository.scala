@@ -16,6 +16,13 @@ class PostgresUserRepository()(
   import ctx._
   import Encoders._
 
+  def createTable(): Unit = {
+    val connection = ctx.dataSource.getConnection
+    val createTable = connection.prepareStatement(User.createTableStatement)
+    createTable.execute()
+    ()
+  }
+
   def create(user: User): Future[User] =
     ctx
       .run {

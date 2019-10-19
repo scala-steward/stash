@@ -6,8 +6,6 @@ import com.dimafeng.testcontainers.PostgreSQLContainer
 import java.sql.DriverManager
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
-import org.scalatest.BeforeAndAfterEach
-import org.scalatest.BeforeAndAfterAll
 import io.getquill.PostgresMonixJdbcContext
 import io.getquill.SnakeCase
 import io.getquill.context.monix.Runner
@@ -16,6 +14,8 @@ import scala.concurrent.Await
 import scala.concurrent.duration.Duration
 import scala.concurrent.Future
 import java.sql.Connection
+
+import scala.concurrent.ExecutionContext.Implicits.global
 
 class PostgresShopRepositoryTest
     extends FlatSpec
@@ -41,12 +41,6 @@ class PostgresShopRepositoryTest
     )
   }
 
-  def createTable(): Unit = {
-    val createTable = connection.prepareStatement(Shop.createTableStatement)
-    createTable.execute()
-    ()
-  }
-
   def dropTable(): Unit = {
     val dropTable = connection.prepareStatement(Shop.dropTableStatement)
     dropTable.execute()
@@ -67,7 +61,6 @@ class PostgresShopRepositoryTest
 
   "A Shop" should "be inserted" in {
     dropTable()
-    createTable()
 
     implicit val ctx: PostgresMonixJdbcContext[SnakeCase] =
       new PostgresMonixJdbcContext(
@@ -77,6 +70,8 @@ class PostgresShopRepositoryTest
       )
 
     val repository: ShopRepository = new PostgresShopRepository()
+
+    repository.createTable()
 
     val foo = Await.result(repository.create(Shop(0, "Foo")), Duration.Inf)
     foo.id should not equal 0
@@ -85,7 +80,6 @@ class PostgresShopRepositoryTest
 
   it should "be found" in {
     dropTable()
-    createTable()
 
     implicit val ctx: PostgresMonixJdbcContext[SnakeCase] =
       new PostgresMonixJdbcContext(
@@ -95,6 +89,8 @@ class PostgresShopRepositoryTest
       )
 
     val repository: ShopRepository = new PostgresShopRepository()
+
+    repository.createTable()
 
     val foo = Await.result(repository.create(Shop(0, "Foo")), Duration.Inf)
 
@@ -106,7 +102,6 @@ class PostgresShopRepositoryTest
 
   it should "be deleted" in {
     dropTable()
-    createTable()
 
     implicit val ctx: PostgresMonixJdbcContext[SnakeCase] =
       new PostgresMonixJdbcContext(
@@ -116,6 +111,8 @@ class PostgresShopRepositoryTest
       )
 
     val repository: ShopRepository = new PostgresShopRepository()
+
+    repository.createTable()
 
     val foo = Await.result(repository.create(Shop(0, "Foo")), Duration.Inf)
 
@@ -128,7 +125,6 @@ class PostgresShopRepositoryTest
 
   "Searching for a non-existant Shop" should "not cause failure" in {
     dropTable()
-    createTable()
 
     implicit val ctx: PostgresMonixJdbcContext[SnakeCase] =
       new PostgresMonixJdbcContext(
@@ -138,6 +134,8 @@ class PostgresShopRepositoryTest
       )
 
     val repository: ShopRepository = new PostgresShopRepository()
+
+    repository.createTable()
 
     val shop = Await.result(repository.find(9), Duration.Inf)
     println(s"$shop")
@@ -145,7 +143,6 @@ class PostgresShopRepositoryTest
 
   "All Shops" should "be found" in {
     dropTable()
-    createTable()
 
     implicit val ctx: PostgresMonixJdbcContext[SnakeCase] =
       new PostgresMonixJdbcContext(
@@ -154,9 +151,9 @@ class PostgresShopRepositoryTest
         Runner.default
       )
 
-    import scala.concurrent.ExecutionContext.Implicits.global
-
     val repository: ShopRepository = new PostgresShopRepository()
+
+    repository.createTable()
 
     Await.result(
       Future.sequence(

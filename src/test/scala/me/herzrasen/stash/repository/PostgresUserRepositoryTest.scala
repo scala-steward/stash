@@ -19,6 +19,8 @@ import me.herzrasen.stash.domain.Roles.{Admin => AdminRole, User => UserRole}
 import java.sql.Connection
 import me.herzrasen.stash.domain.Roles.Unknown
 
+import scala.concurrent.ExecutionContext.Implicits.global
+
 class PostgresUserRepositoryTest
     extends FlatSpec
     with Matchers
@@ -43,12 +45,6 @@ class PostgresUserRepositoryTest
     )
   }
 
-  def createTable(): Unit = {
-    val createTable = connection.prepareStatement(User.createTableStatement)
-    createTable.execute()
-    ()
-  }
-
   def dropTable(): Unit = {
     val dropTable = connection.prepareStatement(User.dropTableStatement)
     dropTable.execute()
@@ -69,7 +65,6 @@ class PostgresUserRepositoryTest
 
   "A User" should "be inserted" in {
     dropTable()
-    createTable()
 
     implicit val ctx: PostgresMonixJdbcContext[SnakeCase] =
       new PostgresMonixJdbcContext(
@@ -80,21 +75,22 @@ class PostgresUserRepositoryTest
 
     val repository: UserRepository = new PostgresUserRepository()
 
+    repository.createTable()
+
     val foo = Await.result(
       repository.create(
-        User(0, "A User", "apassword".getBytes(), UserRole)
+        User(0, "A User", "apassword", UserRole)
       ),
       Duration.Inf
     )
     foo.id should not equal 0
     foo.name shouldEqual "A User"
-    foo.password shouldEqual "apassword".getBytes()
+    foo.password shouldEqual "apassword"
     foo.role shouldEqual UserRole
   }
 
   it should "be found" in {
     dropTable()
-    createTable()
 
     implicit val ctx: PostgresMonixJdbcContext[SnakeCase] =
       new PostgresMonixJdbcContext(
@@ -105,8 +101,10 @@ class PostgresUserRepositoryTest
 
     val repository: UserRepository = new PostgresUserRepository()
 
+    repository.createTable()
+
     val aUser = Await.result(
-      repository.create(User(0, "A User", "auser".getBytes(), UserRole)),
+      repository.create(User(0, "A User", "auser", UserRole)),
       Duration.Inf
     )
 
@@ -119,7 +117,6 @@ class PostgresUserRepositoryTest
 
   it should "be deleted" in {
     dropTable()
-    createTable()
 
     implicit val ctx: PostgresMonixJdbcContext[SnakeCase] =
       new PostgresMonixJdbcContext(
@@ -130,8 +127,10 @@ class PostgresUserRepositoryTest
 
     val repository: UserRepository = new PostgresUserRepository()
 
+    repository.createTable()
+
     val foo = Await.result(
-      repository.create(User(0, "A User", "auser".getBytes(), Unknown)),
+      repository.create(User(0, "A User", "auser", Unknown)),
       Duration.Inf
     )
 
@@ -144,7 +143,6 @@ class PostgresUserRepositoryTest
 
   "Searching for a non-existant User" should "not cause failure" in {
     dropTable()
-    createTable()
 
     implicit val ctx: PostgresMonixJdbcContext[SnakeCase] =
       new PostgresMonixJdbcContext(
@@ -154,6 +152,8 @@ class PostgresUserRepositoryTest
       )
 
     val repository: UserRepository = new PostgresUserRepository()
+
+    repository.createTable()
 
     val User = Await.result(repository.find(9), Duration.Inf)
     println(s"$User")
@@ -161,7 +161,6 @@ class PostgresUserRepositoryTest
 
   "All Users" should "be found" in {
     dropTable()
-    createTable()
 
     implicit val ctx: PostgresMonixJdbcContext[SnakeCase] =
       new PostgresMonixJdbcContext(
@@ -170,16 +169,16 @@ class PostgresUserRepositoryTest
         Runner.default
       )
 
-    import scala.concurrent.ExecutionContext.Implicits.global
-
     val repository: UserRepository = new PostgresUserRepository()
+
+    repository.createTable()
 
     Await.result(
       Future.sequence(
         List(
-          repository.create(User(0, "A User", "auser".getBytes(), UserRole)),
+          repository.create(User(0, "A User", "auser", UserRole)),
           repository.create(
-            User(0, "An Admin", "anadmin".getBytes(), AdminRole)
+            User(0, "An Admin", "anadmin", AdminRole)
           )
         )
       ),

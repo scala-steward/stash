@@ -1,19 +1,10 @@
 package me.herzrasen.stash.repository
-import com.typesafe.scalalogging.StrictLogging
 import me.herzrasen.stash.domain.Shop
 import scala.concurrent.Future
 
-import scala.concurrent.ExecutionContext
-import io.getquill.PostgresJdbcContext
 import io.getquill.SnakeCase
 import io.getquill.PostgresMonixJdbcContext
-import monix.eval.Task
 import monix.execution.Scheduler
-import monix.execution.CancelableFuture
-import io.getquill.context.sql.SqlContext
-import io.getquill.context.sql.idiom.SqlIdiom
-import io.getquill.NamingStrategy
-import io.getquill.PostgresDialect
 
 class PostgresShopRepository()(
     implicit ctx: PostgresMonixJdbcContext[SnakeCase]
@@ -23,7 +14,14 @@ class PostgresShopRepository()(
 
   import ctx._
 
-  def create(shop: Shop): Future[Shop] = {
+  def createTable(): Unit = {
+    val connection = ctx.dataSource.getConnection
+    val createTable = connection.prepareStatement(Shop.createTableStatement)
+    createTable.execute()
+    ()
+  }
+
+  def create(shop: Shop): Future[Shop] =
     ctx
       .run {
         quote {
@@ -32,7 +30,6 @@ class PostgresShopRepository()(
       }
       .map(id => shop.copy(id = id))
       .runToFuture
-  }
 
   def delete(shop: Shop): Future[Unit] =
     ctx
