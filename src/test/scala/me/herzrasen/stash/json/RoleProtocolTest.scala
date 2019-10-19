@@ -31,4 +31,10 @@ class RoleProtocolTest extends FlatSpec with Matchers {
     val fromJson = json.parseJson.convertTo[Role]
     fromJson shouldEqual role
   }
+
+  "Parsing an invalid JSON" should "return Unknown" in {
+    val json = 42.toJson.prettyPrint
+    val fromJson = json.parseJson.convertTo[Role]
+    fromJson shouldEqual Unknown
+  }
 }
