@@ -10,19 +10,27 @@ import me.herzrasen.stash.repository.UserRepository
 import me.herzrasen.stash.repository.PostgresUserRepository
 import akka.http.scaladsl.server.Route
 import akka.stream.ActorMaterializer
+import me.herzrasen.stash.http.server.AuthRoute
+import akka.http.scaladsl.server.RouteConcatenation
+import scala.concurrent.ExecutionContext
 
-object Stash extends App with StrictLogging {
+object Stash extends App with RouteConcatenation with StrictLogging {
   logger.info("Stash server starting...")
 
   implicit val system: ActorSystem = ActorSystem("stash")
   implicit val am: ActorMaterializer = ActorMaterializer()
+  implicit val ec: ExecutionContext = ExecutionContext.Implicits.global
 
   implicit val ctx: PostgresMonixJdbcContext[SnakeCase] =
     new PostgresMonixJdbcContext(SnakeCase, "postgres")
 
   implicit val repository: UserRepository = new PostgresUserRepository()
+  repository.createTable()
 
-  val userRoute: Route = new UserRoute().route
+  val password = new AuthRoute().hash("test123")
+  println(s"$password")
 
-  Http().bindAndHandle(userRoute, "0.0.0.0", 8080)
+  val route: Route = new UserRoute().route ~ new AuthRoute().route
+
+  Http().bindAndHandle(route, "0.0.0.0", 8080)
 }

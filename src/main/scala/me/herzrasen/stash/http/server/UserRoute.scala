@@ -5,14 +5,12 @@ import akka.http.scaladsl.server.Route
 
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 
-import akka.http.scaladsl.server.directives.FutureDirectives
-
 import akka.http.scaladsl.server.Directives._
 import scala.util.{Failure, Success}
 import akka.http.scaladsl.model.StatusCodes
 
 import me.herzrasen.stash.json.UserProtocol._
-import akka.http.scaladsl.server.directives.PathDirectives
+import akka.http.scaladsl.server.directives._
 
 class UserRoute()(implicit repository: UserRepository)
     extends PathDirectives

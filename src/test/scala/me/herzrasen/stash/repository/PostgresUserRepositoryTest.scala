@@ -89,7 +89,7 @@ class PostgresUserRepositoryTest
     foo.role shouldEqual UserRole
   }
 
-  it should "be found" in {
+  it should "be found by id" in {
     dropTable()
 
     implicit val ctx: PostgresMonixJdbcContext[SnakeCase] =
@@ -109,6 +109,32 @@ class PostgresUserRepositoryTest
     )
 
     val other = Await.result(repository.find(aUser.id), Duration.Inf)
+
+    other shouldBe defined
+    other.get.name shouldEqual aUser.name
+    other.get.password.sameElements(aUser.password) shouldBe true
+  }
+
+  it should "be found by name" in {
+    dropTable()
+
+    implicit val ctx: PostgresMonixJdbcContext[SnakeCase] =
+      new PostgresMonixJdbcContext(
+        SnakeCase,
+        config.getConfig("postgres"),
+        Runner.default
+      )
+
+    val repository: UserRepository = new PostgresUserRepository()
+
+    repository.createTable()
+
+    val aUser = Await.result(
+      repository.create(User(0, "A User", "auser", UserRole)),
+      Duration.Inf
+    )
+
+    val other = Await.result(repository.find(aUser.name), Duration.Inf)
 
     other shouldBe defined
     other.get.name shouldEqual aUser.name
@@ -141,7 +167,7 @@ class PostgresUserRepositoryTest
     Users shouldBe empty
   }
 
-  "Searching for a non-existant User" should "not cause failure" in {
+  "Searching for a non-existant User by id" should "not cause failure" in {
     dropTable()
 
     implicit val ctx: PostgresMonixJdbcContext[SnakeCase] =
@@ -156,6 +182,24 @@ class PostgresUserRepositoryTest
     repository.createTable()
 
     val User = Await.result(repository.find(9), Duration.Inf)
+    println(s"$User")
+  }
+
+  "Searching for a non-existant User by name" should "not cause failure" in {
+    dropTable()
+
+    implicit val ctx: PostgresMonixJdbcContext[SnakeCase] =
+      new PostgresMonixJdbcContext(
+        SnakeCase,
+        config.getConfig("postgres"),
+        Runner.default
+      )
+
+    val repository: UserRepository = new PostgresUserRepository()
+
+    repository.createTable()
+
+    val User = Await.result(repository.find("not a real user"), Duration.Inf)
     println(s"$User")
   }
 

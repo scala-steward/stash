@@ -66,6 +66,16 @@ class PostgresUserRepository()(
       .runToFuture
       .map(_.headOption)
 
+  def find(name: String): Future[Option[User]] =
+    ctx
+      .run {
+        quote {
+          querySchema[User]("stash_user").filter(_.name == lift(name))
+        }
+      }
+      .runToFuture
+      .map(_.headOption)
+
   object Encoders {
     import io.getquill.MappedEncoding
 
