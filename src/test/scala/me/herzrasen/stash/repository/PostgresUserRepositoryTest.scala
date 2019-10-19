@@ -16,6 +16,8 @@ import scala.concurrent.duration.Duration
 import scala.concurrent.Future
 import me.herzrasen.stash.domain.User
 import me.herzrasen.stash.domain.Roles.{Admin => AdminRole, User => UserRole}
+import java.sql.Connection
+import me.herzrasen.stash.domain.Roles.Unknown
 
 class PostgresUserRepositoryTest
     extends FlatSpec
@@ -32,34 +34,23 @@ class PostgresUserRepositoryTest
     password = password
   )
 
-  def createTable(): Unit = {
+  lazy val connection: Connection = {
     Class.forName(container.driverClassName)
-    val connection = DriverManager.getConnection(
+    DriverManager.getConnection(
       container.jdbcUrl,
       container.username,
       container.password
     )
+  }
 
-    val createTableStatement: String =
-      "CREATE TABLE stash_user (id SERIAL PRIMARY KEY, name VARCHAR UNIQUE, password VARCHAR, role VARCHAR(12))"
-
-    val createTable = connection.prepareStatement(createTableStatement)
+  def createTable(): Unit = {
+    val createTable = connection.prepareStatement(User.createTableStatement)
     createTable.execute()
     ()
   }
 
   def dropTable(): Unit = {
-    Class.forName(container.driverClassName)
-    val connection = DriverManager.getConnection(
-      container.jdbcUrl,
-      container.username,
-      container.password
-    )
-
-    val dropTableStatement: String =
-      "DROP TABLE IF EXISTS stash_user"
-
-    val dropTable = connection.prepareStatement(dropTableStatement)
+    val dropTable = connection.prepareStatement(User.dropTableStatement)
     dropTable.execute()
     ()
   }
@@ -91,13 +82,13 @@ class PostgresUserRepositoryTest
 
     val foo = Await.result(
       repository.create(
-        User(0, "A User", "apassword", UserRole)
+        User(0, "A User", "apassword".getBytes(), UserRole)
       ),
       Duration.Inf
     )
     foo.id should not equal 0
     foo.name shouldEqual "A User"
-    foo.password shouldEqual "apassword"
+    foo.password shouldEqual "apassword".getBytes()
     foo.role shouldEqual UserRole
   }
 
@@ -115,14 +106,15 @@ class PostgresUserRepositoryTest
     val repository: UserRepository = new PostgresUserRepository()
 
     val aUser = Await.result(
-      repository.create(User(0, "A User", "auser", UserRole)),
+      repository.create(User(0, "A User", "auser".getBytes(), UserRole)),
       Duration.Inf
     )
 
     val other = Await.result(repository.find(aUser.id), Duration.Inf)
 
     other shouldBe defined
-    other.get shouldEqual aUser
+    other.get.name shouldEqual aUser.name
+    other.get.password.sameElements(aUser.password) shouldBe true
   }
 
   it should "be deleted" in {
@@ -139,7 +131,7 @@ class PostgresUserRepositoryTest
     val repository: UserRepository = new PostgresUserRepository()
 
     val foo = Await.result(
-      repository.create(User(0, "A User", "auser", UserRole)),
+      repository.create(User(0, "A User", "auser".getBytes(), Unknown)),
       Duration.Inf
     )
 
@@ -185,8 +177,10 @@ class PostgresUserRepositoryTest
     Await.result(
       Future.sequence(
         List(
-          repository.create(User(0, "A User", "auser", UserRole)),
-          repository.create(User(0, "An Admin", "anadmin", AdminRole))
+          repository.create(User(0, "A User", "auser".getBytes(), UserRole)),
+          repository.create(
+            User(0, "An Admin", "anadmin".getBytes(), AdminRole)
+          )
         )
       ),
       Duration.Inf

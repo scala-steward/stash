@@ -15,6 +15,7 @@ import me.herzrasen.stash.domain.Shop
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
 import scala.concurrent.Future
+import java.sql.Connection
 
 class PostgresShopRepositoryTest
     extends FlatSpec
@@ -31,34 +32,23 @@ class PostgresShopRepositoryTest
     password = password
   )
 
-  def createTable(): Unit = {
+  lazy val connection: Connection = {
     Class.forName(container.driverClassName)
-    val connection = DriverManager.getConnection(
+    DriverManager.getConnection(
       container.jdbcUrl,
       container.username,
       container.password
     )
+  }
 
-    val createTableStatement: String =
-      "CREATE TABLE shop (id SERIAL PRIMARY KEY, name VARCHAR UNIQUE)"
-
-    val createTable = connection.prepareStatement(createTableStatement)
+  def createTable(): Unit = {
+    val createTable = connection.prepareStatement(Shop.createTableStatement)
     createTable.execute()
     ()
   }
 
   def dropTable(): Unit = {
-    Class.forName(container.driverClassName)
-    val connection = DriverManager.getConnection(
-      container.jdbcUrl,
-      container.username,
-      container.password
-    )
-
-    val dropTableStatement: String =
-      "DROP TABLE IF EXISTS shop"
-
-    val dropTable = connection.prepareStatement(dropTableStatement)
+    val dropTable = connection.prepareStatement(Shop.dropTableStatement)
     dropTable.execute()
     ()
   }
