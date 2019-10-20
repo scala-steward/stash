@@ -23,7 +23,7 @@ trait JwtDirectives extends HeaderDirectives with RouteDirectives {
             if (JwtUtil.isExpired(bt)) {
               reject(AuthorizationFailedRejection)
             } else {
-              val role = roleFromToken(bt)
+              val role = JwtUtil.role(bt)
               if (f(role)) pass
               else reject(AuthorizationFailedRejection)
             }
@@ -33,11 +33,6 @@ trait JwtDirectives extends HeaderDirectives with RouteDirectives {
         reject(AuthorizationFailedRejection)
     }
 
-  private def roleFromToken(jwt: String): Role =
-    JwtUtil.role(jwt) match {
-      case Some(role) => Roles.parse(role)
-      case _ => Roles.Unknown
-    }
 }
 
 object JwtDirectives extends JwtDirectives

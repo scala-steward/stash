@@ -6,6 +6,9 @@ import com.auth0.jwt.JWT
 import java.util.Date
 import java.time.ZonedDateTime
 import java.util.Base64
+import me.herzrasen.stash.domain.Roles
+import me.herzrasen.stash.domain.Roles.Role
+import me.herzrasen.stash.domain.Roles.Unknown
 
 object JwtUtil {
 
@@ -29,8 +32,11 @@ object JwtUtil {
       case None => false
     }
 
-  def role(jwt: String): Option[String] =
-    Option(JWT.decode(jwt).getClaim("role")).map(_.asString)
+  def role(jwt: String): Role =
+    Option(JWT.decode(jwt).getClaim("role").asString) match {
+      case Some(role) => Roles.parse(role)
+      case None => Unknown
+    }
 
   def user(jwt: String): Option[String] =
     Option(JWT.decode(jwt).getClaim("user")).map(_.asString)

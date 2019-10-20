@@ -7,6 +7,7 @@ import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import java.util.Date
 import java.time.ZonedDateTime
+import me.herzrasen.stash.domain.Roles.Admin
 
 class JwtUtilTest extends FlatSpec with Matchers {
 
@@ -24,7 +25,7 @@ class JwtUtilTest extends FlatSpec with Matchers {
     val user = User(42, "Test", "mysecret123", Roles.Admin)
     val token = JwtUtil.create(user)
 
-    JwtUtil.role(token) shouldEqual Some("admin")
+    JwtUtil.role(token) shouldEqual Admin
   }
 
   it should "have a valid user claim" in {
