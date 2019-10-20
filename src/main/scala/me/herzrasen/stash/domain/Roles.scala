@@ -18,10 +18,15 @@ case object Roles {
   }
 
   def parse(str: String): Role =
-    str.toLowerCase match {
-      case "admin" => Admin
-      case "user" => User
-      case _ => Unknown
+    Option(str) match {
+      case Some(_) =>
+        str.toLowerCase match {
+          case "admin" => Admin
+          case "user" => User
+          case _ => Unknown
+        }
+      case None =>
+        Unknown
     }
 
   def isAdmin(role: Role): Boolean =

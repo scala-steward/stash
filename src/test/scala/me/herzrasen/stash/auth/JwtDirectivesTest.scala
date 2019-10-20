@@ -119,4 +119,18 @@ class JwtDirectivesTest extends FlatSpec with Matchers with ScalatestRouteTest {
       rejection shouldEqual AuthorizationFailedRejection
     }
   }
+
+  it should "be rejected for a token without role claim" in {
+    val token =
+      JWT
+        .create()
+        .withExpiresAt(
+          Date.from(ZonedDateTime.now().plusDays(7).toInstant())
+        )
+        .sign(Algorithm.HMAC256("test"))
+
+    Get("/test") ~> addHeader("Authorization", s"Bearer $token") ~> TestRoute.route ~> check {
+      rejection shouldEqual AuthorizationFailedRejection
+    }
+  }
 }

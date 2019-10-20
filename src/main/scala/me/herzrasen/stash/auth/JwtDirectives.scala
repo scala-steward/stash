@@ -10,26 +10,12 @@ import me.herzrasen.stash.auth.BearerToken
 trait JwtDirectives extends HeaderDirectives with RouteDirectives {
 
   def authorizeAdmin: Directive0 =
-    optionalHeaderValueByName("Authorization").flatMap {
-      case Some(token) =>
-        BearerToken(token).token match {
-          case Some(bt) =>
-            if (JwtUtil.isExpired(bt)) {
-              reject(AuthorizationFailedRejection)
-            } else {
-              val role = roleFromToken(bt)
-              if (Roles.isAdmin(role))
-                pass
-              else
-                reject(AuthorizationFailedRejection)
-            }
-          case None => reject(AuthorizationFailedRejection)
-        }
-      case _ =>
-        reject(AuthorizationFailedRejection)
-    }
+    authorize(Roles.isAdmin)
 
   def authorize: Directive0 =
+    authorize(r => !Roles.isUnknown(r))
+
+  private def authorize(f: Role => Boolean): Directive0 =
     optionalHeaderValueByName("Authorization").flatMap {
       case Some(token) =>
         BearerToken(token).token match {
@@ -38,10 +24,8 @@ trait JwtDirectives extends HeaderDirectives with RouteDirectives {
               reject(AuthorizationFailedRejection)
             } else {
               val role = roleFromToken(bt)
-              if (Roles.isUnknown(role))
-                reject(AuthorizationFailedRejection)
-              else
-                pass
+              if (f(role)) pass
+              else reject(AuthorizationFailedRejection)
             }
           case None => reject(AuthorizationFailedRejection)
         }
