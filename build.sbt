@@ -1,5 +1,3 @@
-enablePlugins(GraalVMNativeImagePlugin)
-
 name := "stash"
 version := "0.1"
 scalaVersion := "2.13.0"
@@ -10,10 +8,6 @@ scalacOptions ++= Seq(
   "-encoding", "utf-8",                // Specify character encoding used by source files.
   "-explaintypes",                     // Explain type errors in more detail.
   "-feature",                          // Emit warning and location for usages of features that should be imported explicitly.
-  "-language:existentials",            // Existential types (besides wildcard types) can be written and inferred
-  "-language:experimental.macros",     // Allow macro definition (besides implementation and application)
-  "-language:higherKinds",             // Allow higher-kinded types
-  "-language:implicitConversions",     // Allow definition of implicit functions called views
   "-unchecked",                        // Enable additional warnings where generated code depends on assumptions.
   "-Xcheckinit",                       // Wrap field accessors to throw an exception on uninitialized access.
   "-Xfatal-warnings",                  // Fail the compilation if there are any warnings.
@@ -55,6 +49,9 @@ libraryDependencies ++= Seq(
   "com.auth0"                  % "java-jwt"              % "3.8.3",
   "ch.qos.logback"             % "logback-classic"       % "1.2.3",
   "com.typesafe.scala-logging" %% "scala-logging"        % "3.9.2",
+  "io.dropwizard.metrics"      % "metrics-core"          % "3.1.2",
+  "io.dropwizard.metrics"      % "metrics-healthchecks"  % "3.1.2",
+  "io.micrometer"              % "micrometer-core"       % "1.3.0",
   "org.scalatest"              %% "scalatest"            % "3.0.8" % Test,
   "com.dimafeng"               %% "testcontainers-scala" % "0.33.0" % Test,
   "org.testcontainers"         % "postgresql"            % "1.12.2" % Test

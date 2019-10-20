@@ -37,4 +37,9 @@ class JwtUtilTest extends FlatSpec with Matchers {
 
     JwtUtil.isExpired(token) shouldBe false
   }
+
+  "A Hash" should "be generated" in {
+    val hash = JwtUtil.hash("test")
+    hash shouldEqual "n4bQgYhMfWWaL+qgxVrQFaO/TxsrC4Is0V1sFbDwCgg="
+  }
 }
