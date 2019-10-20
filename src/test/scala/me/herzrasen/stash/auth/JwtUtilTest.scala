@@ -4,6 +4,9 @@ import org.scalatest.Matchers
 import me.herzrasen.stash.domain.User
 import me.herzrasen.stash.domain.Roles
 import com.auth0.jwt.JWT
+import com.auth0.jwt.algorithms.Algorithm
+import java.util.Date
+import java.time.ZonedDateTime
 
 class JwtUtilTest extends FlatSpec with Matchers {
 
@@ -35,6 +38,25 @@ class JwtUtilTest extends FlatSpec with Matchers {
     val user = User(42, "Test", "mysecret123", Roles.Admin)
     val token = JwtUtil.create(user)
 
+    JwtUtil.isExpired(token) shouldBe false
+  }
+
+  it should "be expired" in {
+    val token =
+      JWT
+        .create()
+        .withExpiresAt(
+          Date.from(ZonedDateTime.now().minusMinutes(1).toInstant())
+        )
+        .sign(Algorithm.HMAC256("test"))
+    JwtUtil.isExpired(token) shouldBe true
+  }
+
+  it should "be never expire when no expiration is in token" in {
+    val token =
+      JWT
+        .create()
+        .sign(Algorithm.HMAC256("test"))
     JwtUtil.isExpired(token) shouldBe false
   }
 
