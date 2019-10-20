@@ -11,6 +11,7 @@ import me.herzrasen.stash.repository.UserRepository
 import scala.concurrent.ExecutionContext
 import com.typesafe.scalalogging.StrictLogging
 import me.herzrasen.stash.auth.JwtUtil
+import me.herzrasen.stash.domain.Roles.Unknown
 
 class AuthRoute()(implicit repository: UserRepository, ec: ExecutionContext)
     extends SecurityDirectives
@@ -32,6 +33,8 @@ class AuthRoute()(implicit repository: UserRepository, ec: ExecutionContext)
     credentials match {
       case p @ Provided(id) =>
         repository.find(id).map {
+          case Some(user) if user.role == Unknown =>
+            None
           case Some(user) =>
             if (p.verify(user.password, hasher = JwtUtil.hash)) {
               logger.debug(s"Authenticated user: ${user.name}")
