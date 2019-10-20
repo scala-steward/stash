@@ -11,20 +11,24 @@ import akka.http.scaladsl.model.StatusCodes
 
 import me.herzrasen.stash.json.UserProtocol._
 import akka.http.scaladsl.server.directives._
+import me.herzrasen.stash.auth.JwtDirectives
 
 class UserRoute()(implicit repository: UserRepository)
     extends PathDirectives
     with SprayJsonSupport
-    with FutureDirectives {
+    with FutureDirectives
+    with JwtDirectives {
 
   val route: Route =
     path("v1" / "user") {
-      get {
-        onComplete(repository.findAll()) {
-          case Success(users) =>
-            complete(users)
-          case Failure(ex) =>
-            complete(StatusCodes.InternalServerError -> ex)
+      authorizeAdmin {
+        get {
+          onComplete(repository.findAll()) {
+            case Success(users) =>
+              complete(users)
+            case Failure(ex) =>
+              complete(StatusCodes.InternalServerError -> ex)
+          }
         }
       }
     }

@@ -13,6 +13,7 @@ import akka.stream.ActorMaterializer
 import me.herzrasen.stash.http.server.AuthRoute
 import akka.http.scaladsl.server.RouteConcatenation
 import scala.concurrent.ExecutionContext
+import me.herzrasen.stash.auth.JwtUtil
 
 object Stash extends App with RouteConcatenation with StrictLogging {
   logger.info("Stash server starting...")
@@ -27,7 +28,7 @@ object Stash extends App with RouteConcatenation with StrictLogging {
   implicit val repository: UserRepository = new PostgresUserRepository()
   repository.createTable()
 
-  val password = new AuthRoute().hash("test123")
+  val password = JwtUtil.hash("test123")
   println(s"$password")
 
   val route: Route = new UserRoute().route ~ new AuthRoute().route

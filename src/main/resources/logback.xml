@@ -10,4 +10,6 @@
         <appender-ref ref="console"/>
     </root>
 
+    <logger name="me.herzrasen" level="debug"/>
+
 </configuration>

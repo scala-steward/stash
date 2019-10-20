@@ -20,7 +20,15 @@ case object Roles {
   def parse(str: String): Role =
     str.toLowerCase match {
       case "admin" => Admin
-      case "user"  => User
-      case _       => Unknown
+      case "user" => User
+      case _ => Unknown
     }
+
+  def isAdmin(role: Role): Boolean =
+    if (role == Admin) true
+    else false
+
+  def isUnknown(role: Role): Boolean =
+    if (role == Unknown) true
+    else false
 }
