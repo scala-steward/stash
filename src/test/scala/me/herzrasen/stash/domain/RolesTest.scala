@@ -30,6 +30,11 @@ class RolesTest extends FlatSpec with Matchers {
     unknown shouldBe Unknown
   }
 
+  it should "be Unknown when passing null" in {
+    val unknown = Roles.parse(null)
+    unknown shouldBe Unknown
+  }
+
   "String representation" should "be admin" in {
     Admin.mkString shouldEqual "admin"
   }

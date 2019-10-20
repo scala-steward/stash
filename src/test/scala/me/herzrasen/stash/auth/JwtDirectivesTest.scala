@@ -133,4 +133,14 @@ class JwtDirectivesTest extends FlatSpec with Matchers with ScalatestRouteTest {
       rejection shouldEqual AuthorizationFailedRejection
     }
   }
+
+  it should "be rejected for an Non-Bearer token" in {
+    Get("/test") ~> addHeader(
+      "Authorization",
+      s"Basic c29tZSB1c2VyOnRlc3QxMjM="
+    ) ~> TestRoute.route ~> check {
+      rejection shouldEqual AuthorizationFailedRejection
+    }
+  }
+
 }
