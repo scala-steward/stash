@@ -49,7 +49,7 @@ trait JwtDirectives extends HeaderDirectives with RouteDirectives {
         reject(AuthorizationFailedRejection)
     }
 
-  def roleFromToken(jwt: String): Role =
+  private def roleFromToken(jwt: String): Role =
     JwtUtil.role(jwt) match {
       case Some(role) => Roles.parse(role)
       case _ => Roles.Unknown
