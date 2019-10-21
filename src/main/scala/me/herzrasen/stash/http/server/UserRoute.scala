@@ -20,7 +20,7 @@ class UserRoute()(implicit repository: UserRepository)
     with JwtDirectives {
 
   val route: Route =
-    path("v1" / "user") {
+    path("v1" / "users") {
       authorizeAdmin {
         get {
           onComplete(repository.findAll()) {

@@ -1,0 +1,60 @@
+package me.herzrasen.stash.http.server
+import org.scalatest.FlatSpec
+import org.scalatest.Matchers
+import akka.http.scaladsl.testkit.ScalatestRouteTest
+import me.herzrasen.stash.auth.JwtUtil
+import me.herzrasen.stash.domain.Roles
+import me.herzrasen.stash.repository.UserRepository
+import me.herzrasen.stash.repository.InMemoryUserRepository
+import me.herzrasen.stash.domain.User
+import akka.http.scaladsl.model.StatusCodes
+
+import spray.json._
+import me.herzrasen.stash.json.UserProtocol._
+import akka.http.scaladsl.server.AuthorizationFailedRejection
+
+class UserRouteTest extends FlatSpec with Matchers with ScalatestRouteTest {
+
+  val admin = User(1, "Admin", JwtUtil.hash("test123"), Roles.Admin)
+  val user = User(2, "User", JwtUtil.hash("test123"), Roles.User)
+  val unknown = User(3, "Unknown", JwtUtil.hash("test123"), Roles.Unknown)
+
+  implicit val repository: UserRepository = new InMemoryUserRepository()
+  repository.create(admin)
+  repository.create(user)
+  repository.create(unknown)
+
+  "/v1/users" should "complete successfully for an admin" in {
+    val token = JwtUtil.create(admin)
+
+    Get("/v1/users") ~> addHeader("Authorization", s"Bearer $token") ~> new UserRoute().route ~> check {
+      status shouldEqual StatusCodes.OK
+      val json = responseAs[String]
+      val users = json.parseJson.convertTo[List[User]]
+      users should have size (3)
+      users should contain allOf (admin, user, unknown)
+    }
+  }
+
+  it should "be rejected for users" in {
+    val token = JwtUtil.create(user)
+
+    Get("/v1/users") ~> addHeader("Authorization", s"Bearer $token") ~> new UserRoute().route ~> check {
+      rejection shouldEqual AuthorizationFailedRejection
+    }
+  }
+
+  it should "be rejected for unknown users" in {
+    val token = JwtUtil.create(unknown)
+
+    Get("/v1/users") ~> addHeader("Authorization", s"Bearer $token") ~> new UserRoute().route ~> check {
+      rejection shouldEqual AuthorizationFailedRejection
+    }
+  }
+
+  it should "be rejected for anonymous" in {
+    Get("/v1/users") ~> new UserRoute().route ~> check {
+      rejection shouldEqual AuthorizationFailedRejection
+    }
+  }
+}
