@@ -1,19 +1,16 @@
 package me.herzrasen.stash.auth
-import org.scalatest.FlatSpec
-import org.scalatest.Matchers
-import akka.http.scaladsl.testkit.ScalatestRouteTest
-import akka.http.scaladsl.server.Route
-import akka.http.scaladsl.server.directives.PathDirectives
-import akka.http.scaladsl.server.directives.RouteDirectives
-import akka.http.scaladsl.server.AuthorizationFailedRejection
-import me.herzrasen.stash.domain.User
-import me.herzrasen.stash.domain.Roles
-import akka.http.scaladsl.model.StatusCodes
-import com.auth0.jwt.JWT
-import java.util.Date
+
 import java.time.ZonedDateTime
+import java.util.Date
+
+import akka.http.scaladsl.model.StatusCodes
+import akka.http.scaladsl.server.directives.{PathDirectives, RouteDirectives}
+import akka.http.scaladsl.server.{AuthorizationFailedRejection, Route, RouteConcatenation}
+import akka.http.scaladsl.testkit.ScalatestRouteTest
+import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
-import akka.http.scaladsl.server.RouteConcatenation
+import me.herzrasen.stash.domain.{Roles, User}
+import org.scalatest.{FlatSpec, Matchers}
 
 class JwtDirectivesTest extends FlatSpec with Matchers with ScalatestRouteTest {
 

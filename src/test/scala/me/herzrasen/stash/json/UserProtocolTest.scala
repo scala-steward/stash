@@ -1,11 +1,10 @@
 package me.herzrasen.stash.json
-import org.scalatest.FlatSpec
-import org.scalatest.Matchers
 
-import UserProtocol._
-import spray.json._
-import me.herzrasen.stash.domain.User
 import me.herzrasen.stash.domain.Roles.{User => UserRole}
+import me.herzrasen.stash.domain.User
+import me.herzrasen.stash.json.UserProtocol._
+import org.scalatest.{FlatSpec, Matchers}
+import spray.json._
 
 class UserProtocolTest extends FlatSpec with Matchers {
 

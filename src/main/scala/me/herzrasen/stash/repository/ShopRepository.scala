@@ -1,8 +1,8 @@
 package me.herzrasen.stash.repository
 
-import scala.concurrent.Future
-
 import me.herzrasen.stash.domain.Shop
+
+import scala.concurrent.Future
 
 trait ShopRepository {
   def createTable(): Unit

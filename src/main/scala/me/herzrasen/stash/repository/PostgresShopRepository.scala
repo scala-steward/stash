@@ -3,6 +3,7 @@ package me.herzrasen.stash.repository
 import io.getquill._
 import me.herzrasen.stash.domain.Shop
 import monix.execution.Scheduler
+
 import scala.concurrent.Future
 
 class PostgresShopRepository()(

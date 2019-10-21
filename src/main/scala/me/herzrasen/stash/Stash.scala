@@ -6,10 +6,9 @@ import akka.http.scaladsl.server._
 import akka.stream.ActorMaterializer
 import com.typesafe.scalalogging.StrictLogging
 import io.getquill._
-import me.herzrasen.stash.http.server.AuthRoute
-import me.herzrasen.stash.http.server.UserRoute
-import me.herzrasen.stash.repository.PostgresUserRepository
-import me.herzrasen.stash.repository.UserRepository
+import me.herzrasen.stash.http.server.{AuthRoute, UserRoute}
+import me.herzrasen.stash.repository.{PostgresUserRepository, UserRepository}
+
 import scala.concurrent.ExecutionContext
 
 object Stash extends App with RouteConcatenation with StrictLogging {

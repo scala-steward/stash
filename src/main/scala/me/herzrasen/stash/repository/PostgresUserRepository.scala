@@ -1,9 +1,9 @@
 package me.herzrasen.stash.repository
 
 import io.getquill._
-import me.herzrasen.stash.domain.Roles
-import me.herzrasen.stash.domain.User
+import me.herzrasen.stash.domain.{Roles, User}
 import monix.execution.Scheduler
+
 import scala.concurrent.Future
 
 class PostgresUserRepository()(
@@ -13,7 +13,6 @@ class PostgresUserRepository()(
   implicit val scheduler: Scheduler = monix.execution.Scheduler.global
 
   import ctx._
-  import Encoders._
 
   def createTable(): Unit = {
     val connection = ctx.dataSource.getConnection
@@ -76,7 +75,6 @@ class PostgresUserRepository()(
       .map(_.headOption)
 
   object Encoders {
-    import io.getquill.MappedEncoding
 
     implicit val encodeRole: MappedEncoding[Roles.Role, String] =
       MappedEncoding(

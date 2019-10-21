@@ -30,16 +30,8 @@ case object Roles {
     }
 
   def isAdmin(role: Role): Boolean =
-    if (role == Admin) {
-      true
-    } else {
-      false
-    }
+    role == Admin
 
   def isUnknown(role: Role): Boolean =
-    if (role == Unknown) {
-      true
-    } else {
-      false
-    }
+    role == Unknown
 }

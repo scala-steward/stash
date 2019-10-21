@@ -1,12 +1,10 @@
 package me.herzrasen.stash.auth
 
-import akka.http.scaladsl.server.AuthorizationFailedRejection
-import akka.http.scaladsl.server.Directive0
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.directives._
-import me.herzrasen.stash.auth.BearerToken
-import me.herzrasen.stash.domain._
+import akka.http.scaladsl.server.{AuthorizationFailedRejection, Directive0}
 import me.herzrasen.stash.domain.Roles._
+import me.herzrasen.stash.domain._
 
 trait JwtDirectives extends HeaderDirectives with RouteDirectives {
 

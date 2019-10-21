@@ -1,13 +1,13 @@
 package me.herzrasen.stash.auth
-import org.scalatest.FlatSpec
-import org.scalatest.Matchers
-import me.herzrasen.stash.domain.User
-import me.herzrasen.stash.domain.Roles
+
+import java.time.ZonedDateTime
+import java.util.Date
+
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
-import java.util.Date
-import java.time.ZonedDateTime
 import me.herzrasen.stash.domain.Roles.Admin
+import me.herzrasen.stash.domain.{Roles, User}
+import org.scalatest.{FlatSpec, Matchers}
 
 class JwtUtilTest extends FlatSpec with Matchers {
 

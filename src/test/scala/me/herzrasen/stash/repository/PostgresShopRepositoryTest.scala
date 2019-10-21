@@ -1,21 +1,17 @@
 package me.herzrasen.stash.repository
-import org.scalatest.FlatSpec
-import org.scalatest.Matchers
-import com.dimafeng.testcontainers.ForAllTestContainer
-import com.dimafeng.testcontainers.PostgreSQLContainer
-import java.sql.DriverManager
-import com.typesafe.config.Config
-import com.typesafe.config.ConfigFactory
-import io.getquill.PostgresMonixJdbcContext
-import io.getquill.SnakeCase
+
+import java.sql.{Connection, DriverManager}
+
+import com.dimafeng.testcontainers.{ForAllTestContainer, PostgreSQLContainer}
+import com.typesafe.config.{Config, ConfigFactory}
 import io.getquill.context.monix.Runner
+import io.getquill.{PostgresMonixJdbcContext, SnakeCase}
 import me.herzrasen.stash.domain.Shop
-import scala.concurrent.Await
-import scala.concurrent.duration.Duration
-import scala.concurrent.Future
-import java.sql.Connection
+import org.scalatest.{FlatSpec, Matchers}
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, Future}
 
 class PostgresShopRepositoryTest
     extends FlatSpec
