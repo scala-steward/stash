@@ -2,13 +2,14 @@ package me.herzrasen.stash.http.server
 
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
-import akka.http.scaladsl.server.directives._
 import akka.http.scaladsl.server.directives.Credentials._
+import akka.http.scaladsl.server.directives._
 import com.typesafe.scalalogging.StrictLogging
 import me.herzrasen.stash.auth.JwtUtil
 import me.herzrasen.stash.domain.Roles.Unknown
 import me.herzrasen.stash.domain.User
 import me.herzrasen.stash.repository.UserRepository
+
 import scala.concurrent.{ExecutionContext, Future}
 
 class AuthRoute()(implicit repository: UserRepository, ec: ExecutionContext)

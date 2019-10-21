@@ -1,9 +1,8 @@
 package me.herzrasen.stash.json
-import org.scalatest.FlatSpec
-import org.scalatest.Matchers
-import me.herzrasen.stash.domain.Shop
 
+import me.herzrasen.stash.domain.Shop
 import me.herzrasen.stash.json.ShopProtocol._
+import org.scalatest.{FlatSpec, Matchers}
 import spray.json._
 
 class ShopProtocolTest extends FlatSpec with Matchers {

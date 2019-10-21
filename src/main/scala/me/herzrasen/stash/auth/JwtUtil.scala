@@ -1,13 +1,12 @@
 package me.herzrasen.stash.auth
 
+import java.security.MessageDigest
+import java.time.ZonedDateTime
+import java.util.{Base64, Date}
+
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
-import java.time.ZonedDateTime
-import java.util.Base64
-import java.util.Date
-import me.herzrasen.stash.domain.Roles
-import me.herzrasen.stash.domain.Roles._
-import me.herzrasen.stash.domain.User
+import me.herzrasen.stash.domain.{Roles, User}
 
 object JwtUtil {
 
@@ -29,25 +28,20 @@ object JwtUtil {
   def isExpired(jwt: String): Boolean =
     Option(JWT.decode(jwt).getExpiresAt) match {
       case Some(expiredAt) =>
-        if (expiredAt.toInstant().isBefore(ZonedDateTime.now().toInstant())) {
-          true
-        } else {
-          false
-        }
+        expiredAt.toInstant().isBefore(ZonedDateTime.now().toInstant())
       case None => false
     }
 
-  def role(jwt: String): Role =
+  def role(jwt: String): Roles.Role =
     Option(JWT.decode(jwt).getClaim("role").asString) match {
       case Some(role) => Roles.parse(role)
-      case None => Unknown
+      case None => Roles.Unknown
     }
 
   def user(jwt: String): Option[String] =
     Option(JWT.decode(jwt).getClaim("user")).map(_.asString)
 
   def hash(password: String): String = {
-    import java.security.MessageDigest
     val bytes =
       MessageDigest.getInstance("SHA-256").digest(password.getBytes("UTF-8"))
     Base64.getEncoder.encodeToString(bytes)

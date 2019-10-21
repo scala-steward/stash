@@ -1,17 +1,15 @@
 package me.herzrasen.stash.http.server
-import org.scalatest.FlatSpec
-import org.scalatest.Matchers
+
+import akka.http.scaladsl.model.StatusCodes
+import akka.http.scaladsl.server.AuthorizationFailedRejection
 import akka.http.scaladsl.testkit.ScalatestRouteTest
 import me.herzrasen.stash.auth.JwtUtil
-import me.herzrasen.stash.domain.Roles
-import me.herzrasen.stash.repository.UserRepository
-import me.herzrasen.stash.repository.InMemoryUserRepository
-import me.herzrasen.stash.domain.User
-import akka.http.scaladsl.model.StatusCodes
-
-import spray.json._
+import me.herzrasen.stash.domain.{Roles, User}
 import me.herzrasen.stash.json.UserProtocol._
-import akka.http.scaladsl.server.AuthorizationFailedRejection
+import me.herzrasen.stash.repository.{InMemoryUserRepository, UserRepository}
+import org.scalatest.{FlatSpec, Matchers}
+import spray.json._
+
 import scala.concurrent.Future
 
 class UserRouteTest extends FlatSpec with Matchers with ScalatestRouteTest {

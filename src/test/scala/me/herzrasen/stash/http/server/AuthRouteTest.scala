@@ -1,19 +1,15 @@
 package me.herzrasen.stash.http.server
-import org.scalatest.FlatSpec
-import org.scalatest.Matchers
-import akka.http.scaladsl.testkit.ScalatestRouteTest
-import me.herzrasen.stash.repository.UserRepository
-import me.herzrasen.stash.repository.InMemoryUserRepository
-import me.herzrasen.stash.domain.User
-import me.herzrasen.stash.auth.JwtUtil
-import me.herzrasen.stash.domain.Roles
-import akka.http.scaladsl.model.headers.BasicHttpCredentials
+
 import akka.http.scaladsl.model.StatusCodes
-import me.herzrasen.stash.domain.Roles.Admin
+import akka.http.scaladsl.model.headers.{BasicHttpCredentials, HttpChallenge}
 import akka.http.scaladsl.server.AuthenticationFailedRejection
-import akka.http.scaladsl.server.AuthenticationFailedRejection.CredentialsMissing
-import akka.http.scaladsl.model.headers.HttpChallenge
-import akka.http.scaladsl.server.AuthenticationFailedRejection.CredentialsRejected
+import akka.http.scaladsl.server.AuthenticationFailedRejection.{CredentialsMissing, CredentialsRejected}
+import akka.http.scaladsl.testkit.ScalatestRouteTest
+import me.herzrasen.stash.auth.JwtUtil
+import me.herzrasen.stash.domain.Roles.Admin
+import me.herzrasen.stash.domain.{Roles, User}
+import me.herzrasen.stash.repository.{InMemoryUserRepository, UserRepository}
+import org.scalatest.{FlatSpec, Matchers}
 
 class AuthRouteTest extends FlatSpec with Matchers with ScalatestRouteTest {
 

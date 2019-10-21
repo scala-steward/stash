@@ -8,6 +8,7 @@ import akka.http.scaladsl.server.directives._
 import me.herzrasen.stash.auth.JwtDirectives
 import me.herzrasen.stash.json.UserProtocol._
 import me.herzrasen.stash.repository.UserRepository
+
 import scala.util.{Failure, Success}
 
 class UserRoute()(implicit repository: UserRepository)

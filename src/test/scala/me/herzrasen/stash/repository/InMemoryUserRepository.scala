@@ -1,7 +1,9 @@
 package me.herzrasen.stash.repository
+
 import me.herzrasen.stash.domain.User
-import scala.concurrent.Future
+
 import scala.collection.mutable
+import scala.concurrent.Future
 
 class InMemoryUserRepository extends UserRepository {
 

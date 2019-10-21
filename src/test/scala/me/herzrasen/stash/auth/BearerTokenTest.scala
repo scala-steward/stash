@@ -1,6 +1,6 @@
 package me.herzrasen.stash.auth
-import org.scalatest.FlatSpec
-import org.scalatest.Matchers
+
+import org.scalatest.{FlatSpec, Matchers}
 
 class BearerTokenTest extends FlatSpec with Matchers {
 

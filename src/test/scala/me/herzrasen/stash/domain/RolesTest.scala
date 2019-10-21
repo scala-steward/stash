@@ -1,7 +1,7 @@
 package me.herzrasen.stash.domain
-import org.scalatest.FlatSpec
-import org.scalatest.Matchers
+
 import me.herzrasen.stash.domain.Roles._
+import org.scalatest.{FlatSpec, Matchers}
 
 class RolesTest extends FlatSpec with Matchers {
 

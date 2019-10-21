@@ -1,6 +1,7 @@
 package me.herzrasen.stash.repository
 
 import me.herzrasen.stash.domain.User
+
 import scala.concurrent.Future
 
 trait UserRepository {

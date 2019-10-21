@@ -1,9 +1,9 @@
 package me.herzrasen.stash.repository
 
 import io.getquill._
-import me.herzrasen.stash.domain.Roles
-import me.herzrasen.stash.domain.User
+import me.herzrasen.stash.domain.{Roles, User}
 import monix.execution.Scheduler
+
 import scala.concurrent.Future
 
 class PostgresUserRepository()(
@@ -75,12 +75,11 @@ class PostgresUserRepository()(
       .runToFuture
       .map(_.headOption)
 
-  object Encoders {
-    import io.getquill.MappedEncoding
+  private object Encoders {
 
     implicit val encodeRole: MappedEncoding[Roles.Role, String] =
       MappedEncoding(
-        _.mkString
+        _.mkString()
       )
 
     implicit val decodeRole: MappedEncoding[String, Roles.Role] =
