@@ -12,6 +12,7 @@ import akka.http.scaladsl.model.StatusCodes
 import spray.json._
 import me.herzrasen.stash.json.UserProtocol._
 import akka.http.scaladsl.server.AuthorizationFailedRejection
+import scala.concurrent.Future
 
 class UserRouteTest extends FlatSpec with Matchers with ScalatestRouteTest {
 
@@ -56,5 +57,18 @@ class UserRouteTest extends FlatSpec with Matchers with ScalatestRouteTest {
     Get("/v1/users") ~> new UserRoute().route ~> check {
       rejection shouldEqual AuthorizationFailedRejection
     }
+  }
+
+  it should "return 500 when failing finding users" in {
+    implicit val repository: UserRepository = new FailingInMemoryUserRepository
+    val token = JwtUtil.create(admin)
+    Get("/v1/users") ~> addHeader("Authorization", s"Bearer $token") ~> new UserRoute().route ~> check {
+      status shouldEqual StatusCodes.InternalServerError
+    }
+  }
+
+  class FailingInMemoryUserRepository extends InMemoryUserRepository {
+    override def findAll(): Future[List[User]] =
+      Future.failed(new IllegalArgumentException("Test"))
   }
 }
