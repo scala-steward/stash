@@ -1,3 +1,5 @@
+enablePlugins(DockerPlugin)
+
 name := "stash"
 version := "0.1"
 scalaVersion := "2.13.0"
@@ -63,3 +65,5 @@ coverageEnabled := true
 
 // full output in test exceptions
 testOptions in Test += Tests.Argument("-oF")
+
+mainClass := Some("me.herzrasen.stash.Stash")
