@@ -9,6 +9,6 @@ jdk:
 services:
   - docker
 script:
-  - sbt clean coverage test coverageReport
+  - sbt clean coverage test coverageReport coverageAggregate codacyCoverage
 after_success:
   - bash <(curl -s https://codecov.io/bash)
