@@ -1,3 +1,4 @@
+enablePlugins(JavaAppPackaging)
 enablePlugins(DockerPlugin)
 
 name := "stash"
@@ -50,9 +51,6 @@ libraryDependencies ++= Seq(
   "com.auth0"                  % "java-jwt"              % "3.8.3",
   "ch.qos.logback"             % "logback-classic"       % "1.2.3",
   "com.typesafe.scala-logging" %% "scala-logging"        % "3.9.2",
-  "io.dropwizard.metrics"      % "metrics-core"          % "3.1.2",
-  "io.dropwizard.metrics"      % "metrics-healthchecks"  % "3.1.2",
-  "io.micrometer"              % "micrometer-core"       % "1.3.0",
   "org.scalatest"              %% "scalatest"            % "3.0.8" % Test,
   "com.dimafeng"               %% "testcontainers-scala" % "0.33.0" % Test,
   "org.testcontainers"         % "postgresql"            % "1.12.2" % Test,
@@ -60,9 +58,16 @@ libraryDependencies ++= Seq(
   "com.typesafe.akka"          %% "akka-http-testkit"    % "10.1.10" % Test
 )
 
-coverageEnabled := true
-
 // full output in test exceptions
 testOptions in Test += Tests.Argument("-oF")
 
 mainClass := Some("me.herzrasen.stash.Stash")
+
+maintainer in Docker := "dennis.mellert@gmail.com"
+
+val port = 8080
+
+dockerBaseImage := "openjdk:11"
+dockerUsername := Some("stash")
+daemonUser in Docker := "stash"
+dockerExposedPorts ++= Seq(port)

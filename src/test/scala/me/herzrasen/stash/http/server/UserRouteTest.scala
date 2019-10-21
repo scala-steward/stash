@@ -5,7 +5,7 @@ import akka.http.scaladsl.server.AuthorizationFailedRejection
 import akka.http.scaladsl.testkit.ScalatestRouteTest
 import me.herzrasen.stash.auth.JwtUtil
 import me.herzrasen.stash.domain.{Roles, User}
-import me.herzrasen.stash.json.UserProtocol._
+import me.herzrasen.stash.json.JsonSupport._
 import me.herzrasen.stash.repository.{InMemoryUserRepository, UserRepository}
 import org.scalatest.{FlatSpec, Matchers}
 import spray.json._
