@@ -1,11 +1,10 @@
 package me.herzrasen.stash.repository
-import io.getquill.PostgresMonixJdbcContext
-import io.getquill.SnakeCase
-import scala.concurrent.Future
-import monix.execution.Scheduler
-import me.herzrasen.stash.domain.User
-import me.herzrasen.stash.domain.Roles.Role
+
+import io.getquill._
 import me.herzrasen.stash.domain.Roles
+import me.herzrasen.stash.domain.User
+import monix.execution.Scheduler
+import scala.concurrent.Future
 
 class PostgresUserRepository()(
     implicit ctx: PostgresMonixJdbcContext[SnakeCase]
@@ -79,12 +78,14 @@ class PostgresUserRepository()(
   object Encoders {
     import io.getquill.MappedEncoding
 
-    implicit val encodeRole: MappedEncoding[Role, String] = MappedEncoding(
-      _.mkString
-    )
+    implicit val encodeRole: MappedEncoding[Roles.Role, String] =
+      MappedEncoding(
+        _.mkString
+      )
 
-    implicit val decodeRole: MappedEncoding[String, Role] = MappedEncoding(
-      Roles.parse
-    )
+    implicit val decodeRole: MappedEncoding[String, Roles.Role] =
+      MappedEncoding(
+        Roles.parse
+      )
   }
 }

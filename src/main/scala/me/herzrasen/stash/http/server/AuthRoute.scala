@@ -1,17 +1,15 @@
 package me.herzrasen.stash.http.server
-import akka.http.scaladsl.server.directives.PathDirectives
-import akka.http.scaladsl.server.directives._
-import akka.http.scaladsl.server.Route
-import akka.http.scaladsl.server.directives.Credentials
-import akka.http.scaladsl.server.directives.Credentials._
+
 import akka.http.scaladsl.server.Directives._
-import me.herzrasen.stash.domain.User
-import scala.concurrent.Future
-import me.herzrasen.stash.repository.UserRepository
-import scala.concurrent.ExecutionContext
+import akka.http.scaladsl.server.Route
+import akka.http.scaladsl.server.directives._
+import akka.http.scaladsl.server.directives.Credentials._
 import com.typesafe.scalalogging.StrictLogging
 import me.herzrasen.stash.auth.JwtUtil
 import me.herzrasen.stash.domain.Roles.Unknown
+import me.herzrasen.stash.domain.User
+import me.herzrasen.stash.repository.UserRepository
+import scala.concurrent.{ExecutionContext, Future}
 
 class AuthRoute()(implicit repository: UserRepository, ec: ExecutionContext)
     extends SecurityDirectives
@@ -39,7 +37,9 @@ class AuthRoute()(implicit repository: UserRepository, ec: ExecutionContext)
             if (p.verify(user.password, hasher = JwtUtil.hash)) {
               logger.debug(s"Authenticated user: ${user.name}")
               Some(user)
-            } else None
+            } else {
+              None
+            }
           case None =>
             None
         }

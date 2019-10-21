@@ -1,8 +1,7 @@
 package me.herzrasen.stash.json
-import spray.json.DefaultJsonProtocol
-import spray.json.RootJsonFormat
 
 import me.herzrasen.stash.domain.Shop
+import spray.json.{DefaultJsonProtocol, RootJsonFormat}
 
 object ShopProtocol extends DefaultJsonProtocol {
 

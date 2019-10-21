@@ -1,11 +1,12 @@
 package me.herzrasen.stash.auth
-import akka.http.scaladsl.server.directives._
-import akka.http.scaladsl.server.Directives._
+
+import akka.http.scaladsl.server.AuthorizationFailedRejection
 import akka.http.scaladsl.server.Directive0
+import akka.http.scaladsl.server.Directives._
+import akka.http.scaladsl.server.directives._
+import me.herzrasen.stash.auth.BearerToken
 import me.herzrasen.stash.domain._
 import me.herzrasen.stash.domain.Roles._
-import akka.http.scaladsl.server.AuthorizationFailedRejection
-import me.herzrasen.stash.auth.BearerToken
 
 trait JwtDirectives extends HeaderDirectives with RouteDirectives {
 
@@ -24,8 +25,11 @@ trait JwtDirectives extends HeaderDirectives with RouteDirectives {
               reject(AuthorizationFailedRejection)
             } else {
               val role = JwtUtil.role(bt)
-              if (f(role)) pass
-              else reject(AuthorizationFailedRejection)
+              if (f(role)) {
+                pass
+              } else {
+                reject(AuthorizationFailedRejection)
+              }
             }
           case None => reject(AuthorizationFailedRejection)
         }

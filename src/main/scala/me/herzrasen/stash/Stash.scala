@@ -1,17 +1,15 @@
 package me.herzrasen.stash
-import com.typesafe.scalalogging.StrictLogging
 
-import io.getquill.PostgresMonixJdbcContext
-import io.getquill.SnakeCase
-import akka.http.scaladsl.Http
-import me.herzrasen.stash.http.server.UserRoute
 import akka.actor.ActorSystem
-import me.herzrasen.stash.repository.UserRepository
-import me.herzrasen.stash.repository.PostgresUserRepository
-import akka.http.scaladsl.server.Route
+import akka.http.scaladsl.Http
+import akka.http.scaladsl.server._
 import akka.stream.ActorMaterializer
+import com.typesafe.scalalogging.StrictLogging
+import io.getquill._
 import me.herzrasen.stash.http.server.AuthRoute
-import akka.http.scaladsl.server.RouteConcatenation
+import me.herzrasen.stash.http.server.UserRoute
+import me.herzrasen.stash.repository.PostgresUserRepository
+import me.herzrasen.stash.repository.UserRepository
 import scala.concurrent.ExecutionContext
 
 object Stash extends App with RouteConcatenation with StrictLogging {
@@ -29,5 +27,7 @@ object Stash extends App with RouteConcatenation with StrictLogging {
 
   val route: Route = new UserRoute().route ~ new AuthRoute().route
 
-  Http().bindAndHandle(route, "0.0.0.0", 8080)
+  val port: Int = 8080
+
+  Http().bindAndHandle(route, "0.0.0.0", port)
 }

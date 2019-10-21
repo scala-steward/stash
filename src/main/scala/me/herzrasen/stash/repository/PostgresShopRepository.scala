@@ -1,10 +1,9 @@
 package me.herzrasen.stash.repository
-import me.herzrasen.stash.domain.Shop
-import scala.concurrent.Future
 
-import io.getquill.SnakeCase
-import io.getquill.PostgresMonixJdbcContext
+import io.getquill._
+import me.herzrasen.stash.domain.Shop
 import monix.execution.Scheduler
+import scala.concurrent.Future
 
 class PostgresShopRepository()(
     implicit ctx: PostgresMonixJdbcContext[SnakeCase]
