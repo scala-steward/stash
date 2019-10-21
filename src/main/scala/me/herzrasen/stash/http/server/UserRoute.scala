@@ -34,21 +34,32 @@ class UserRoute()(implicit repository: UserRepository)
           }
         } ~
           post {
-
             entity(as[NewUser]) { newUser =>
-              logger.info(s"Trying to create user: ${newUser.name}")
-              onComplete(
-                repository.create(
-                  User(
-                    0,
-                    newUser.name,
-                    JwtUtil.hash(newUser.password),
-                    Roles.User
-                  )
-                )
-              ) {
-                case Success(user) =>
-                  complete(user)
+              onComplete(repository.find(newUser.name)) {
+                case Success(existingUserOpt) =>
+                  existingUserOpt match {
+                    case None =>
+                      logger.info(s"Trying to create user: ${newUser.name}")
+                      onComplete(
+                        repository.create(
+                          User(
+                            0,
+                            newUser.name,
+                            JwtUtil.hash(newUser.password),
+                            Roles.User
+                          )
+                        )
+                      ) {
+                        case Success(user) =>
+                          complete(user)
+                        case Failure(ex) =>
+                          complete(StatusCodes.InternalServerError -> ex)
+                      }
+                    case Some(_) =>
+                      complete(
+                        StatusCodes.Conflict -> s"User ${newUser.name} already exists"
+                      )
+                  }
                 case Failure(ex) =>
                   complete(StatusCodes.InternalServerError -> ex)
               }
