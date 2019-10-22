@@ -26,6 +26,12 @@ object Stash extends App with RouteConcatenation with StrictLogging {
 
   implicit val repository: UserRepository = new PostgresUserRepository()
   repository.createTable()
+  repository.initializeAdminUser().map {
+    case Some(initialAdminPassword) =>
+      logger.info(s"Initial admin password: >>>> $initialAdminPassword <<<<")
+    case None =>
+    logger.debug("Admin user already exists. No new one created.")
+  }
 
   val webServer: WebServer =
     WebServer.start(config.httpServerInterface, config.httpServerPort, Routes())

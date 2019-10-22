@@ -6,6 +6,8 @@ import java.util.{Base64, Date}
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
+import com.auth0.jwt.exceptions.JWTDecodeException
+import com.auth0.jwt.interfaces.{Claim, DecodedJWT}
 import me.herzrasen.stash.domain.{Roles, User}
 
 object JwtUtil {
@@ -25,31 +27,53 @@ object JwtUtil {
       .withClaim("role", user.role.mkString())
       .sign(algorithm)
   }
+  private def decode(jwt: String): Option[DecodedJWT] =
+    try {
+      Some(JWT.decode(jwt))
+    } catch {
+      case _: JWTDecodeException =>
+        None
+    }
 
   def isExpired(jwt: String): Boolean =
-    Option(JWT.decode(jwt).getExpiresAt) match {
-      case Some(expiredAt) =>
-        expiredAt.toInstant.isBefore(ZonedDateTime.now().toInstant())
+    decode(jwt) match {
+      case Some(decoded) =>
+        Option(decoded.getExpiresAt) match {
+          case Some(expiresAt) =>
+            expiresAt.toInstant.isBefore(ZonedDateTime.now.toInstant)
+          case None =>
+            false
+        }
       case None => false
     }
 
-  def role(jwt: String): Roles.Role =
-    Option(JWT.decode(jwt).getClaim("role").asString) match {
-      case Some(role) => Roles.parse(role)
-      case None => Roles.Unknown
+  private def extractClaimOr[T](
+      jwt: String,
+      claimName: String,
+      f: Claim => T,
+      default: T
+  ) = {
+    decode(jwt) match {
+      case Some(decoded) =>
+        val claim = decoded.getClaim(claimName)
+        if (claim.isNull) {
+          default
+        } else {
+          f(claim)
+        }
+      case None =>
+        default
     }
+  }
+
+  def role(jwt: String): Roles.Role =
+    extractClaimOr(jwt, "role", c => Roles.parse(c.asString), Roles.Unknown)
 
   def id(jwt: String): Option[Int] =
-    Option(JWT.decode(jwt).getClaim("id")).flatMap { claim =>
-      if (claim.isNull) {
-        None
-      } else {
-        Option(Int.unbox(claim.asInt()))
-      }
-    }
+    extractClaimOr(jwt, "id", c => Some(Int.unbox(c.asInt)), None)
 
   def user(jwt: String): Option[String] =
-    Option(JWT.decode(jwt).getClaim("user")).map(_.asString)
+    extractClaimOr(jwt, "user", c => Some(c.asString), None)
 
   def hash(password: String): String = {
     val bytes =
