@@ -116,6 +116,28 @@ class UserRouteTest
     }
   }
 
+  "PUT /v1/user/<id>" should "update the password" in {
+    val token = JwtUtil.create(user)
+    val newPassword = "mynewpassword"
+    Put(s"/v1/users/${user.id}", newPassword) ~> addHeader(
+      "Authorization",
+      s"Bearer $token"
+    ) ~> new UserRoute().route ~> check {
+      status shouldEqual StatusCodes.OK
+    }
+  }
+
+  it should "fail when trying to update the password of another user" in {
+    val token = JwtUtil.create(admin)
+    val newPassword = "mynewpassword"
+    Put(s"/v1/users/${user.id}", newPassword) ~> addHeader(
+      "Authorization",
+      s"Bearer $token"
+    ) ~> new UserRoute().route ~> check {
+      rejection shouldEqual AuthorizationFailedRejection
+    }
+  }
+
   "POST /v1/users" should "create a new user" in {
     val token = JwtUtil.create(admin)
     val newUser = NewUser("foo", "bar")
