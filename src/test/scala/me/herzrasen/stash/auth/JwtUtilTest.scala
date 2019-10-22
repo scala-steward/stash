@@ -16,9 +16,17 @@ class JwtUtilTest extends FlatSpec with Matchers {
     val token = JwtUtil.create(user)
 
     val decoded = JWT.decode(token)
-    decoded.getIssuer() shouldEqual "stash"
+    decoded.getIssuer shouldEqual "stash"
+    decoded.getClaim("id").asInt shouldEqual 42
     decoded.getClaim("role").asString shouldEqual "admin"
     decoded.getClaim("user").asString shouldEqual "Test"
+  }
+
+  it should "have a valid id claim" in {
+    val user = User(42, "Test", "mysecret123", Roles.Admin)
+    val token = JwtUtil.create(user)
+
+    JwtUtil.id(token) shouldEqual Some(42)
   }
 
   it should "have a valid role claim" in {

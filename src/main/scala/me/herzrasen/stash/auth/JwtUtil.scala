@@ -18,8 +18,9 @@ object JwtUtil {
       .create()
       .withIssuer("stash")
       .withExpiresAt(
-        Date.from(ZonedDateTime.now.plusDays(validDays).toInstant())
+        Date.from(ZonedDateTime.now.plusDays(validDays).toInstant)
       )
+      .withClaim("id", Integer.valueOf(user.id))
       .withClaim("user", user.name)
       .withClaim("role", user.role.mkString())
       .sign(algorithm)
@@ -28,7 +29,7 @@ object JwtUtil {
   def isExpired(jwt: String): Boolean =
     Option(JWT.decode(jwt).getExpiresAt) match {
       case Some(expiredAt) =>
-        expiredAt.toInstant().isBefore(ZonedDateTime.now().toInstant())
+        expiredAt.toInstant.isBefore(ZonedDateTime.now().toInstant())
       case None => false
     }
 
@@ -37,6 +38,9 @@ object JwtUtil {
       case Some(role) => Roles.parse(role)
       case None => Roles.Unknown
     }
+
+  def id(jwt: String): Option[Int] =
+    Option(JWT.decode(jwt).getClaim("id")).map(_.asInt)
 
   def user(jwt: String): Option[String] =
     Option(JWT.decode(jwt).getClaim("user")).map(_.asString)

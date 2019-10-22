@@ -23,48 +23,73 @@ class UserRoute()(implicit repository: UserRepository)
     with StrictLogging {
 
   val route: Route =
-    path("v1" / "users") {
-      authorizeAdmin {
-        get {
-          onComplete(repository.findAll()) {
-            case Success(users) =>
-              complete(users)
+    pathPrefix("v1" / "users") {
+      path(IntNumber) { id =>
+        authorize { idFromToken =>
+          val f = repository.find(id).zip(repository.find(idFromToken))
+          onComplete(f) {
+            case Success((userFromIdOpt, userFromTokenOpt)) =>
+              (userFromIdOpt, userFromTokenOpt) match {
+                case (Some(userFromId), Some(userFromToken))
+                    if userFromId.id == userFromToken.id =>
+                  complete(userFromId)
+                case (Some(userFromId), Some(userFromToken))
+                    if Roles.isAdmin(userFromToken.role) =>
+                  complete(userFromId)
+                case (_, Some(userFromToken))
+                    if !Roles.isAdmin(userFromToken.role) =>
+                  complete(StatusCodes.Forbidden)
+                case (_, _) =>
+                  complete(StatusCodes.NotFound)
+              }
             case Failure(ex) =>
               complete(StatusCodes.InternalServerError -> ex)
           }
-        } ~
-          post {
-            entity(as[NewUser]) { newUser =>
-              onComplete(repository.find(newUser.name)) {
-                case Success(existingUserOpt) =>
-                  existingUserOpt match {
-                    case None =>
-                      logger.info(s"Trying to create user: ${newUser.name}")
-                      onComplete(
-                        repository.create(
-                          User(
-                            0,
-                            newUser.name,
-                            JwtUtil.hash(newUser.password),
-                            Roles.User
-                          )
-                        )
-                      ) {
-                        case Success(user) =>
-                          complete(user)
-                        case Failure(ex) =>
-                          complete(StatusCodes.InternalServerError -> ex)
-                      }
-                    case Some(_) =>
-                      complete(
-                        StatusCodes.Conflict -> s"User ${newUser.name} already exists"
-                      )
-                  }
+        }
+      } ~
+        pathEnd {
+          authorizeAdmin { _ =>
+            get {
+              onComplete(repository.findAll()) {
+                case Success(users) =>
+                  complete(users)
                 case Failure(ex) =>
                   complete(StatusCodes.InternalServerError -> ex)
               }
-            }
+            } ~
+              post {
+                entity(as[NewUser]) { newUser =>
+                  onComplete(repository.find(newUser.name)) {
+                    case Success(existingUserOpt) =>
+                      existingUserOpt match {
+                        case None =>
+                          logger.info(s"Trying to create user: ${newUser.name}")
+                          onComplete(
+                            repository.create(
+                              User(
+                                0,
+                                newUser.name,
+                                JwtUtil.hash(newUser.password),
+                                Roles.User
+                              )
+                            )
+                          ) {
+                            case Success(user) =>
+                              complete(user)
+                            case Failure(ex) =>
+                              complete(StatusCodes.InternalServerError -> ex)
+                          }
+                        case Some(_) =>
+                          complete(
+                            StatusCodes.Conflict -> s"User ${newUser.name} already exists"
+                          )
+                      }
+                    case Failure(ex) =>
+                      complete(StatusCodes.InternalServerError -> ex)
+                  }
+                }
+              }
           }
-      }
+        }
     }
 }

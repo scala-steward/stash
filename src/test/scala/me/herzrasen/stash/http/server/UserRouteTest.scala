@@ -30,7 +30,6 @@ class UserRouteTest
 
   "GET /v1/users" should "complete successfully for an admin" in {
     val token = JwtUtil.create(admin)
-
     Get("/v1/users") ~> addHeader("Authorization", s"Bearer $token") ~> new UserRoute().route ~> check {
       status shouldEqual StatusCodes.OK
       val json = responseAs[String]
@@ -42,7 +41,6 @@ class UserRouteTest
 
   it should "be rejected for users" in {
     val token = JwtUtil.create(user)
-
     Get("/v1/users") ~> addHeader("Authorization", s"Bearer $token") ~> new UserRoute().route ~> check {
       rejection shouldEqual AuthorizationFailedRejection
     }
@@ -50,7 +48,6 @@ class UserRouteTest
 
   it should "be rejected for unknown users" in {
     val token = JwtUtil.create(unknown)
-
     Get("/v1/users") ~> addHeader("Authorization", s"Bearer $token") ~> new UserRoute().route ~> check {
       rejection shouldEqual AuthorizationFailedRejection
     }
@@ -68,6 +65,42 @@ class UserRouteTest
     val token = JwtUtil.create(admin)
     Get("/v1/users") ~> addHeader("Authorization", s"Bearer $token") ~> new UserRoute().route ~> check {
       status shouldEqual StatusCodes.InternalServerError
+    }
+  }
+
+  "GET /v1/users/id" should "complete successfully for own id" in {
+    val token = JwtUtil.create(user)
+    Get(s"/v1/users/${user.id}") ~> addHeader("Authorization", s"Bearer $token") ~> new UserRoute().route ~> check {
+      status shouldEqual StatusCodes.OK
+      responseAs[User] shouldEqual user
+    }
+  }
+
+  it should "complete successfully when an Admin queries an user" in {
+    val token = JwtUtil.create(admin)
+    Get(s"/v1/users/${user.id}") ~> addHeader("Authorization", s"Bearer $token") ~> new UserRoute().route ~> check {
+      status shouldEqual StatusCodes.OK
+      responseAs[User] shouldEqual user
+    }
+  }
+
+  it should "fail when anonymous queries an user" in {
+    Get(s"/v1/users/${user.id}") ~> new UserRoute().route ~> check {
+      rejection shouldEqual AuthorizationFailedRejection
+    }
+  }
+
+  it should "return Forbidden when an user queries an unknown id" in {
+    val token = JwtUtil.create(user)
+    Get(s"/v1/users/99999") ~> addHeader("Authorization", s"Bearer $token") ~> new UserRoute().route ~> check {
+      status shouldEqual StatusCodes.Forbidden
+    }
+  }
+
+  it should "return NotFound an admin queries an unknown id" in {
+    val token = JwtUtil.create(admin)
+    Get(s"/v1/users/99999") ~> addHeader("Authorization", s"Bearer $token") ~> new UserRoute().route ~> check {
+      status shouldEqual StatusCodes.NotFound
     }
   }
 

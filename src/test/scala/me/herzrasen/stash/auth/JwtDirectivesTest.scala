@@ -22,12 +22,12 @@ class JwtDirectivesTest extends FlatSpec with Matchers with ScalatestRouteTest {
 
     val route: Route =
       path("test") {
-        authorize {
-          complete("Hello, Authorized")
+        authorize { id =>
+          complete(s"$id")
         }
       } ~ path("admin") {
-        authorizeAdmin {
-          complete("Hello, Admin")
+        authorizeAdmin { id =>
+          complete(s"$id")
         }
       }
 
@@ -39,7 +39,7 @@ class JwtDirectivesTest extends FlatSpec with Matchers with ScalatestRouteTest {
 
     Get("/admin") ~> addHeader("Authorization", s"Bearer $token") ~> TestRoute.route ~> check {
       status shouldEqual StatusCodes.OK
-      responseAs[String] shouldEqual "Hello, Admin"
+      responseAs[String] shouldEqual "42"
     }
   }
 
@@ -74,12 +74,12 @@ class JwtDirectivesTest extends FlatSpec with Matchers with ScalatestRouteTest {
   }
 
   "An authorized request" should "be completed" in {
-    val user = User(42, "Test", JwtUtil.hash("mypassword"), Roles.User)
+    val user = User(41, "Test", JwtUtil.hash("mypassword"), Roles.User)
     val token = JwtUtil.create(user)
 
     Get("/test") ~> addHeader("Authorization", s"Bearer $token") ~> TestRoute.route ~> check {
       status shouldEqual StatusCodes.OK
-      responseAs[String] shouldEqual "Hello, Authorized"
+      responseAs[String] shouldEqual "41"
     }
   }
 
@@ -89,7 +89,7 @@ class JwtDirectivesTest extends FlatSpec with Matchers with ScalatestRouteTest {
 
     Get("/test") ~> addHeader("Authorization", s"Bearer $token") ~> TestRoute.route ~> check {
       status shouldEqual StatusCodes.OK
-      responseAs[String] shouldEqual "Hello, Authorized"
+      responseAs[String] shouldEqual "42"
     }
   }
 

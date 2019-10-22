@@ -67,7 +67,7 @@ maintainer in Docker := "dennis.mellert@gmail.com"
 
 val port = 8080
 
-dockerBaseImage := "openjdk:11"
+dockerBaseImage := "openjdk:11-jre-slim"
 dockerUsername := Some("stash")
 daemonUser in Docker := "stash"
 dockerExposedPorts ++= Seq(port)
