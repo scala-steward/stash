@@ -1,18 +1,16 @@
 package me.herzrasen.stash
 
 import akka.actor.ActorSystem
-import akka.http.scaladsl.Http
-import akka.http.scaladsl.Http.ServerBinding
 import akka.http.scaladsl.server._
 import akka.stream.ActorMaterializer
 import com.typesafe.config.{Config, ConfigFactory}
 import com.typesafe.scalalogging.StrictLogging
 import io.getquill._
 import me.herzrasen.stash.ConfigFields._
-import me.herzrasen.stash.http.server.{AuthRoute, UserRoute}
+import me.herzrasen.stash.http.server.{Routes, WebServer}
 import me.herzrasen.stash.repository.{PostgresUserRepository, UserRepository}
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
 object Stash extends App with RouteConcatenation with StrictLogging {
   logger.info("Stash server starting...")
@@ -29,20 +27,13 @@ object Stash extends App with RouteConcatenation with StrictLogging {
   implicit val repository: UserRepository = new PostgresUserRepository()
   repository.createTable()
 
-  val serverBinding =
-    startWebServer(config.httpServerInterface, config.httpServerPort)
+  val webServer: WebServer =
+    WebServer.start(config.httpServerInterface, config.httpServerPort, Routes())
 
   sys.addShutdownHook {
     logger.info("Shutting down stash...")
-    serverBinding.map(_.terminate(config.httpServerShutdownDeadline))
+    webServer.shutdown
     ()
-  }
-
-  def startWebServer(interface: String, port: Int)(
-      implicit system: ActorSystem, am: ActorMaterializer
-  ): Future[ServerBinding] = {
-    val route: Route = new UserRoute().route ~ new AuthRoute().route
-    Http().bindAndHandle(route, interface, port)
   }
 
 }
