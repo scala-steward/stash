@@ -4,8 +4,10 @@ import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.server._
 import akka.stream.ActorMaterializer
+import com.typesafe.config.{Config, ConfigFactory}
 import com.typesafe.scalalogging.StrictLogging
 import io.getquill._
+import me.herzrasen.stash.ConfigFields._
 import me.herzrasen.stash.http.server.{AuthRoute, UserRoute}
 import me.herzrasen.stash.repository.{PostgresUserRepository, UserRepository}
 
@@ -13,6 +15,8 @@ import scala.concurrent.ExecutionContext
 
 object Stash extends App with RouteConcatenation with StrictLogging {
   logger.info("Stash server starting...")
+
+  private val config: Config = ConfigFactory.load()
 
   implicit val system: ActorSystem = ActorSystem("stash")
   implicit val am: ActorMaterializer = ActorMaterializer()
@@ -26,7 +30,5 @@ object Stash extends App with RouteConcatenation with StrictLogging {
 
   val route: Route = new UserRoute().route ~ new AuthRoute().route
 
-  val port: Int = 8080
-
-  Http().bindAndHandle(route, "0.0.0.0", port)
+  Http().bindAndHandle(route, config.httpServerInterface, config.httpServerPort)
 }

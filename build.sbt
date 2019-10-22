@@ -49,6 +49,7 @@ libraryDependencies ++= Seq(
   "com.typesafe.akka"          %% "akka-http-spray-json" % "10.1.10",
   "com.typesafe.akka"          %% "akka-stream"          % "2.5.26",
   "com.auth0"                  % "java-jwt"              % "3.8.3",
+  "com.iheart"                 %% "ficus"                % "1.4.7",
   "ch.qos.logback"             % "logback-classic"       % "1.2.3",
   "com.typesafe.scala-logging" %% "scala-logging"        % "3.9.2",
   "org.scalatest"              %% "scalatest"            % "3.0.8" % Test,
