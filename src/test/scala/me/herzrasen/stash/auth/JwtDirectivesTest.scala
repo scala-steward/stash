@@ -5,7 +5,11 @@ import java.util.Date
 
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.directives.{PathDirectives, RouteDirectives}
-import akka.http.scaladsl.server.{AuthorizationFailedRejection, Route, RouteConcatenation}
+import akka.http.scaladsl.server.{
+  AuthorizationFailedRejection,
+  Route,
+  RouteConcatenation
+}
 import akka.http.scaladsl.testkit.ScalatestRouteTest
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
@@ -136,6 +140,18 @@ class JwtDirectivesTest extends FlatSpec with Matchers with ScalatestRouteTest {
       "Authorization",
       s"Basic c29tZSB1c2VyOnRlc3QxMjM="
     ) ~> TestRoute.route ~> check {
+      rejection shouldEqual AuthorizationFailedRejection
+    }
+  }
+
+  "Access" should "be rejected when a token does not contain an id" in {
+    val token = JWT
+      .create()
+      .withClaim("role", "user")
+      .withExpiresAt(Date.from(ZonedDateTime.now().plusDays(7).toInstant))
+      .sign(Algorithm.HMAC256("test"))
+
+    Get("/test") ~> addHeader("Authorization", s"Bearer $token") ~> TestRoute.route ~> check {
       rejection shouldEqual AuthorizationFailedRejection
     }
   }

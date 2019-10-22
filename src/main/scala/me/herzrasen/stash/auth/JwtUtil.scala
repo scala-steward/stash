@@ -40,7 +40,13 @@ object JwtUtil {
     }
 
   def id(jwt: String): Option[Int] =
-    Option(JWT.decode(jwt).getClaim("id")).map(_.asInt)
+    Option(JWT.decode(jwt).getClaim("id")).flatMap { claim =>
+      if (claim.isNull) {
+        None
+      } else {
+        Option(Int.unbox(claim.asInt()))
+      }
+    }
 
   def user(jwt: String): Option[String] =
     Option(JWT.decode(jwt).getClaim("user")).map(_.asString)

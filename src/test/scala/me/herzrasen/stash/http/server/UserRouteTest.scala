@@ -104,6 +104,18 @@ class UserRouteTest
     }
   }
 
+  it should "fail when finding the users by id fails" in {
+    implicit val repository: UserRepository =
+      new FailingFindInMemoryUserRepository
+    val token = JwtUtil.create(admin)
+    Get("/v1/users/123") ~> addHeader(
+      "Authorization",
+      s"Bearer $token"
+    ) ~> new UserRoute().route ~> check {
+      status shouldEqual StatusCodes.InternalServerError
+    }
+  }
+
   "POST /v1/users" should "create a new user" in {
     val token = JwtUtil.create(admin)
     val newUser = NewUser("foo", "bar")
@@ -166,6 +178,9 @@ class UserRouteTest
       Future.failed(new IllegalArgumentException("findAll failed"))
 
     override def find(name: String): Future[Option[User]] =
+      Future.failed(new IllegalArgumentException("find failed"))
+
+    override def find(id: Int): Future[Option[User]] =
       Future.failed(new IllegalArgumentException("find failed"))
   }
 

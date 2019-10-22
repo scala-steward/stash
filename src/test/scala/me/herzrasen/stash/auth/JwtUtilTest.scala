@@ -29,6 +29,16 @@ class JwtUtilTest extends FlatSpec with Matchers {
     JwtUtil.id(token) shouldEqual Some(42)
   }
 
+  it should "return None when no id is found" in {
+    val token = JWT
+      .create()
+      .withClaim("role", "user")
+      .withExpiresAt(Date.from(ZonedDateTime.now().plusDays(7).toInstant))
+      .sign(Algorithm.HMAC256("test"))
+
+    JwtUtil.id(token) shouldEqual None
+  }
+
   it should "have a valid role claim" in {
     val user = User(42, "Test", "mysecret123", Roles.Admin)
     val token = JwtUtil.create(user)
