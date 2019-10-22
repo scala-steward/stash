@@ -1,6 +1,9 @@
 package me.herzrasen.stash.repository
 
+import java.util.UUID
+
 import io.getquill._
+import me.herzrasen.stash.auth.JwtUtil
 import me.herzrasen.stash.domain.{Roles, User}
 import monix.execution.Scheduler
 
@@ -12,8 +15,8 @@ class PostgresUserRepository()(
 
   implicit val scheduler: Scheduler = monix.execution.Scheduler.global
 
-  import ctx._
   import Encoders._
+  import ctx._
 
   def createTable(): Unit = {
     val connection = ctx.dataSource.getConnection
@@ -21,6 +24,17 @@ class PostgresUserRepository()(
     createTable.execute()
     ()
   }
+
+  def initializeAdminUser(): Future[Option[String]] =
+    findAll().flatMap { users =>
+      if (users.isEmpty) {
+        val password = UUID.randomUUID().toString
+        val admin = User(0, "admin", JwtUtil.hash(password), Roles.Admin)
+        create(admin).map(_ => Some(password))
+      } else {
+        Future.successful(None)
+      }
+    }
 
   def create(user: User): Future[User] =
     ctx

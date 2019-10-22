@@ -1,8 +1,10 @@
 package me.herzrasen.stash.repository
 
-import me.herzrasen.stash.domain.User
+import me.herzrasen.stash.auth.JwtUtil
+import me.herzrasen.stash.domain.{Roles, User}
 
 import scala.collection.mutable
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class InMemoryUserRepository extends UserRepository {
@@ -11,6 +13,15 @@ class InMemoryUserRepository extends UserRepository {
 
   def createTable(): Unit =
     ()
+
+  def initializeAdminUser(): Future[Option[String]] =
+    if (db.isEmpty) {
+      val password = "test123"
+      val admin = User(1, "admin", JwtUtil.hash(password), Roles.Admin)
+      create(admin).map(_ => Some(password))
+    } else {
+      Future.successful(None)
+    }
 
   def create(user: User): Future[User] = {
     db.addOne(user)

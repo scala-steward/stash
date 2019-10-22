@@ -6,8 +6,13 @@ import com.dimafeng.testcontainers.{ForAllTestContainer, PostgreSQLContainer}
 import com.typesafe.config.{Config, ConfigFactory}
 import io.getquill.context.monix.Runner
 import io.getquill.{PostgresMonixJdbcContext, SnakeCase}
-import me.herzrasen.stash.domain.Roles.{Unknown, Admin => AdminRole, User => UserRole}
-import me.herzrasen.stash.domain.User
+import me.herzrasen.stash.auth.JwtUtil
+import me.herzrasen.stash.domain.Roles.{
+  Unknown,
+  Admin => AdminRole,
+  User => UserRole
+}
+import me.herzrasen.stash.domain.{Roles, User}
 import org.scalatest.{FlatSpec, Matchers}
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -55,6 +60,53 @@ class PostgresUserRepositoryTest
     |  }
     |  connectionTimeout=30000  
     | }""".stripMargin)
+
+  "An initial Admin user" should "be created" in {
+    dropTable()
+
+    implicit val ctx: PostgresMonixJdbcContext[SnakeCase] =
+      new PostgresMonixJdbcContext(
+        SnakeCase,
+        config.getConfig("postgres"),
+        Runner.default
+      )
+
+    val repository: UserRepository = new PostgresUserRepository()
+
+    repository.createTable()
+
+    val adminPassword =
+      Await.result(repository.initializeAdminUser(), Duration.Inf)
+    val adminUser = Await.result(repository.find("admin"), Duration.Inf)
+
+    adminUser shouldBe defined
+    adminPassword shouldBe defined
+    adminUser.get.password shouldEqual JwtUtil.hash(adminPassword.get)
+  }
+
+  it should "not create an user when one exists" in {
+    dropTable()
+
+    implicit val ctx: PostgresMonixJdbcContext[SnakeCase] =
+      new PostgresMonixJdbcContext(
+        SnakeCase,
+        config.getConfig("postgres"),
+        Runner.default
+      )
+
+    val repository: UserRepository = new PostgresUserRepository()
+
+    repository.createTable()
+
+    Await.result(
+      repository.create(
+        User(0, "root", JwtUtil.hash("root's password"), Roles.Admin)
+      ),
+      Duration.Inf
+    )
+
+    Await.result(repository.initializeAdminUser(), Duration.Inf) shouldEqual None
+  }
 
   "A User" should "be inserted" in {
     dropTable()

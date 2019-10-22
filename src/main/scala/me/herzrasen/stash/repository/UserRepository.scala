@@ -6,6 +6,7 @@ import scala.concurrent.Future
 
 trait UserRepository {
   def createTable(): Unit
+  def initializeAdminUser(): Future[Option[String]]
   def create(user: User): Future[User]
   def delete(user: User): Future[Unit]
   def findAll(): Future[List[User]]
