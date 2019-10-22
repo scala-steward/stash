@@ -212,6 +212,34 @@ class PostgresUserRepositoryTest
     Users shouldBe empty
   }
 
+  "The password" should "be updated" in {
+    dropTable()
+
+    implicit val ctx: PostgresMonixJdbcContext[SnakeCase] =
+      new PostgresMonixJdbcContext(
+        SnakeCase,
+        config.getConfig("postgres"),
+        Runner.default
+      )
+
+    val repository: UserRepository = new PostgresUserRepository()
+    repository.createTable()
+
+    val user = Await.result(
+      repository.create(User(0, "test", JwtUtil.hash("test123"), Roles.User)),
+      Duration.Inf
+    )
+
+    val newPassword = "foobar"
+
+    Await.result(repository.updatePassword(user, JwtUtil.hash(newPassword)), Duration.Inf)
+
+    val updatedUser = Await.result(repository.find(user.id), Duration.Inf)
+
+    updatedUser shouldBe defined
+    updatedUser.get.password shouldEqual JwtUtil.hash(newPassword)
+  }
+
   "Searching for a non-existant User by id" should "not cause failure" in {
     dropTable()
 
@@ -226,11 +254,11 @@ class PostgresUserRepositoryTest
 
     repository.createTable()
 
-    val User = Await.result(repository.find(9), Duration.Inf)
-    println(s"$User")
+    val user = Await.result(repository.find(9), Duration.Inf)
+    user shouldEqual None
   }
 
-  "Searching for a non-existant User by name" should "not cause failure" in {
+  "Searching for a non-existant User by name" should "return None" in {
     dropTable()
 
     implicit val ctx: PostgresMonixJdbcContext[SnakeCase] =
@@ -244,8 +272,8 @@ class PostgresUserRepositoryTest
 
     repository.createTable()
 
-    val User = Await.result(repository.find("not a real user"), Duration.Inf)
-    println(s"$User")
+    val user = Await.result(repository.find("not a real user"), Duration.Inf)
+    user shouldEqual None
   }
 
   "All Users" should "be found" in {

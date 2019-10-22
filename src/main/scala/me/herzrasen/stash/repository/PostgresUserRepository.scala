@@ -89,6 +89,16 @@ class PostgresUserRepository()(
       .runToFuture
       .map(_.headOption)
 
+  def updatePassword(user: User, newPassword: String): Future[Unit] =
+    ctx
+      .run {
+        quote {
+          querySchema[User]("stash_user").update(_.password -> lift(newPassword))
+        }
+      }
+      .map(_ => ())
+      .runToFuture
+
   private object Encoders {
 
     implicit val encodeRole: MappedEncoding[Roles.Role, String] =

@@ -12,4 +12,5 @@ trait UserRepository {
   def findAll(): Future[List[User]]
   def find(id: Int): Future[Option[User]]
   def find(name: String): Future[Option[User]]
+  def updatePassword(user: User, newPassword: String): Future[Unit]
 }

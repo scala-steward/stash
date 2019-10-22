@@ -42,4 +42,10 @@ class InMemoryUserRepository extends UserRepository {
   def find(name: String): Future[Option[User]] =
     Future.successful(db.find(_.name == name))
 
+  def updatePassword(user: User, newPassword: String): Future[Unit] =
+    Future.successful {
+      db -= user
+      db.addOne(user.copy(password = newPassword))
+    }
+
 }
