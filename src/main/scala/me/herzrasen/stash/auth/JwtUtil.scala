@@ -44,7 +44,8 @@ object JwtUtil {
           case None =>
             false
         }
-      case None => false
+      case None =>
+        true
     }
 
   private def extractClaimOr[T](

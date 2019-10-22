@@ -11,6 +11,16 @@ import org.scalatest.{FlatSpec, Matchers}
 
 class JwtUtilTest extends FlatSpec with Matchers {
 
+  "An invalid token" should "be expired" in {
+    val isExpired = JwtUtil.isExpired("foobarnotatoken")
+    isExpired shouldEqual true
+  }
+
+  it should "return Roles.Unknown" in {
+    val role = JwtUtil.role("foobarnotvalid")
+    role shouldEqual Roles.Unknown
+  }
+
   "A Token" should "be created" in {
     val user = User(42, "Test", "mysecret123", Roles.Admin)
     val token = JwtUtil.create(user)
