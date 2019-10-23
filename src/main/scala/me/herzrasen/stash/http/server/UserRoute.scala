@@ -15,6 +15,7 @@ import me.herzrasen.stash.domain.{NewUser, Roles, User}
 import me.herzrasen.stash.json.JsonSupport
 import me.herzrasen.stash.repository.UserRepository
 
+import scala.concurrent.Future
 import scala.util.{Failure, Success}
 
 class UserRoute()(implicit repository: UserRepository, hmacSecret: HmacSecret)
@@ -31,7 +32,7 @@ class UserRoute()(implicit repository: UserRepository, hmacSecret: HmacSecret)
       path(IntNumber) { id =>
         authorize.apply { idFromToken =>
           getUser(id, idFromToken) ~ putPassword(id, idFromToken)
-        } ~ authorizeAdmin.apply {_ =>
+        } ~ authorizeAdmin.apply { _ =>
           deleteUser(id)
         }
       } ~
@@ -68,50 +69,39 @@ class UserRoute()(implicit repository: UserRepository, hmacSecret: HmacSecret)
 
   private def deleteUser(id: Int): Route =
     delete {
-      onComplete(repository.find(id)) {
-        case Success(userOpt) =>
-          userOpt match {
-            case Some(user) =>
-              onComplete(repository.delete(user)) {
-                case Success(_) =>
-                  complete(StatusCodes.OK)
-                case Failure(_) =>
-                  complete(StatusCodes.NotModified)
-              }
-            case None =>
-              complete(StatusCodes.NotFound)
-          }
-        case Failure(ex) =>
-          complete(StatusCodes.InternalServerError -> ex)
-      }
+      findUserAndRun(id, repository.delete)
     }
 
   private def putPassword(id: Int, idFromToken: Int): Route =
     put {
       entity(as[String]) { newPassword =>
         if (id == idFromToken) {
-          onComplete(repository.find(id)) {
-            case Success(userOpt) =>
-              userOpt match {
-                case Some(user) =>
-                  onComplete(
-                    repository.updatePassword(user, JwtUtil.hash(newPassword))
-                  ) {
-                    case Success(_) =>
-                      complete(StatusCodes.OK)
-                    case Failure(_) =>
-                      complete(StatusCodes.NotModified)
-                  }
-                case None =>
-                  complete(StatusCodes.NotFound)
-              }
-            case Failure(ex) =>
-              complete(StatusCodes.InternalServerError -> ex)
-          }
+          findUserAndRun(
+            id,
+            user => repository.updatePassword(user, JwtUtil.hash(newPassword))
+          )
         } else {
           reject(AuthorizationFailedRejection)
         }
       }
+    }
+
+  private def findUserAndRun[T](id: Int, f: User => Future[T]): Route =
+    onComplete(repository.find(id)) {
+      case Success(userOpt) =>
+        userOpt match {
+          case Some(user) =>
+            onComplete(f(user)) {
+              case Success(_) =>
+                complete(StatusCodes.OK)
+              case Failure(_) =>
+                complete(StatusCodes.NotModified)
+            }
+          case None =>
+            complete(StatusCodes.NotFound)
+        }
+      case Failure(ex) =>
+        complete(StatusCodes.InternalServerError -> ex)
     }
 
   private def getUsers: Route =
