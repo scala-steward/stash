@@ -11,12 +11,9 @@ import org.scalatest.{FlatSpec, Matchers}
 
 class JwtUtilTest extends FlatSpec with Matchers {
 
-  "An invalid token" should "be expired" in {
-    val isExpired = JwtUtil.isExpired("foobarnotatoken")
-    isExpired shouldEqual true
-  }
+  implicit val hmacSecret: HmacSecret = HmacSecret("jwt-util")
 
-  it should "return Roles.Unknown" in {
+  "An invalid token" should "return Roles.Unknown" in {
     val role = JwtUtil.role("foobarnotvalid")
     role shouldEqual Roles.Unknown
   }
@@ -63,30 +60,9 @@ class JwtUtilTest extends FlatSpec with Matchers {
     JwtUtil.user(token) shouldEqual Some("Test")
   }
 
-  it should "not be expired" in {
-    val user = User(42, "Test", "mysecret123", Roles.Admin)
-    val token = JwtUtil.create(user)
-
-    JwtUtil.isExpired(token) shouldBe false
-  }
-
-  it should "be expired" in {
-    val token =
-      JWT
-        .create()
-        .withExpiresAt(
-          Date.from(ZonedDateTime.now().minusMinutes(1).toInstant())
-        )
-        .sign(Algorithm.HMAC256("test"))
-    JwtUtil.isExpired(token) shouldBe true
-  }
-
-  it should "be never expire when no expiration is in token" in {
-    val token =
-      JWT
-        .create()
-        .sign(Algorithm.HMAC256("test"))
-    JwtUtil.isExpired(token) shouldBe false
+  "A non-existent claim" should "fallback to the default" in {
+    val token = JwtUtil.create(User(42, null, "foo", Roles.Unknown))
+    JwtUtil.user(token) shouldEqual None
   }
 
   "A Hash" should "be generated" in {

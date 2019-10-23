@@ -5,13 +5,15 @@ import akka.http.scaladsl.model.headers.{BasicHttpCredentials, HttpChallenge}
 import akka.http.scaladsl.server.AuthenticationFailedRejection
 import akka.http.scaladsl.server.AuthenticationFailedRejection.{CredentialsMissing, CredentialsRejected}
 import akka.http.scaladsl.testkit.ScalatestRouteTest
-import me.herzrasen.stash.auth.JwtUtil
+import me.herzrasen.stash.auth.{HmacSecret, JwtUtil}
 import me.herzrasen.stash.domain.Roles.Admin
 import me.herzrasen.stash.domain.{Roles, User}
 import me.herzrasen.stash.repository.{InMemoryUserRepository, UserRepository}
 import org.scalatest.{FlatSpec, Matchers}
 
 class AuthRouteTest extends FlatSpec with Matchers with ScalatestRouteTest {
+
+  implicit val hmacSecret: HmacSecret = HmacSecret("auth-route-test")
 
   val admin = User(1, "Admin", JwtUtil.hash("test123"), Roles.Admin)
   val user = User(2, "User", JwtUtil.hash("test123"), Roles.User)

@@ -13,6 +13,7 @@ object ConfigFields {
       config.as[String]("http.server.interface")
     lazy val httpServerShutdownDeadline: FiniteDuration =
       config.as[FiniteDuration]("http.server.shutdownDeadline")
+    lazy val hmacSecret: String = config.as[String]("security.hmacSecret")
   }
 
 }
