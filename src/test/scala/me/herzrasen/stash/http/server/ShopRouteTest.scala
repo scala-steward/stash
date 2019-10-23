@@ -10,6 +10,8 @@ import org.scalatest.{FlatSpec, Matchers}
 import me.herzrasen.stash.json.JsonSupport._
 import spray.json._
 
+import scala.concurrent.Future
+
 class ShopRouteTest extends FlatSpec with Matchers with ScalatestRouteTest {
 
   implicit val hmacSecret: HmacSecret = HmacSecret("shop-route-test")
@@ -51,5 +53,18 @@ class ShopRouteTest extends FlatSpec with Matchers with ScalatestRouteTest {
     }
   }
 
+  it should "fail when finding shops fails" in {
+    implicit val repository: ShopRepository = new FailingFindShopRepository
+    val token = JwtUtil.create(admin)
+
+    Get("/v1/shops") ~> addHeader("Authorization", s"Bearer $token") ~> new ShopRoute().route ~> check {
+      status shouldEqual StatusCodes.InternalServerError
+    }
+  }
+
+  class FailingFindShopRepository extends InMemoryShopRepository {
+    override def findAll(): Future[List[Shop]] =
+      Future.failed(new IllegalArgumentException("findAll failed"))
+  }
 
 }
