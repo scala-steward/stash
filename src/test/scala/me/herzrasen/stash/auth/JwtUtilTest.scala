@@ -92,6 +92,11 @@ class JwtUtilTest extends FlatSpec with Matchers {
     JwtUtil.isExpired(token) shouldBe false
   }
 
+  "A non-existent claim" should "fallback to the default" in {
+    val token = JwtUtil.create(User(42, null, "foo", Roles.Unknown))
+    JwtUtil.user(token) shouldEqual None
+  }
+
   "A Hash" should "be generated" in {
     val hash = JwtUtil.hash("test")
     hash shouldEqual "n4bQgYhMfWWaL+qgxVrQFaO/TxsrC4Is0V1sFbDwCgg="
