@@ -172,6 +172,19 @@ class UserRouteTest
     }
   }
 
+  it should "return NotModified when the update fails" in {
+    implicit val repository: UserRepository = new FailingUpdatePasswordUserRepository
+    repository.create(user)
+    val token = JwtUtil.create(user)
+    val newPassword = "mynewpassword"
+    Put(s"/v1/users/${user.id}", newPassword) ~> addHeader(
+      "Authorization",
+      s"Bearer $token"
+    ) ~> new UserRoute().route ~> check {
+      status shouldEqual StatusCodes.NotModified
+    }
+  }
+
   "POST /v1/users" should "create a new user" in {
     val token = JwtUtil.create(admin)
     val newUser = NewUser("foo", "bar")
@@ -238,6 +251,11 @@ class UserRouteTest
 
     override def find(id: Int): Future[Option[User]] =
       Future.failed(new IllegalArgumentException("find failed"))
+  }
+
+  class FailingUpdatePasswordUserRepository extends InMemoryUserRepository {
+    override def updatePassword(user: User, newPassword: String): Future[Unit] =
+      Future.failed(new IllegalArgumentException("updatePassword failed"))
   }
 
 }
