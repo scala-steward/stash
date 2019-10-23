@@ -62,9 +62,71 @@ class ShopRouteTest extends FlatSpec with Matchers with ScalatestRouteTest {
     }
   }
 
+  "POST /v1/shops" should "create a new Shop" in {
+    val token = JwtUtil.create(user)
+
+    Post("/v1/shops", "Shop 3") ~> addHeader("Authorization", s"Bearer $token") ~> new ShopRoute().route ~> check {
+      status shouldEqual StatusCodes.OK
+    }
+  }
+
+  it should "fail when the shop already exists" in {
+    val token = JwtUtil.create(user)
+
+    Post("/v1/shops", "Shop 1") ~> addHeader("Authorization", s"Bearer $token") ~> new ShopRoute().route ~> check {
+      status shouldEqual StatusCodes.NotModified
+    }
+  }
+
+  "DELETE /v1/shops/<id>" should "delete an shop" in {
+    val token = JwtUtil.create(user)
+
+    Delete(s"/v1/shops/${shop1.id}") ~> addHeader(
+      "Authorization",
+      s"Bearer $token"
+    ) ~> new ShopRoute().route ~> check {
+      status shouldEqual StatusCodes.OK
+    }
+  }
+
+  it should "return NotFound when deleting a shop that does not exist" in {
+    val token = JwtUtil.create(user)
+
+    Delete(s"/v1/shops/999") ~> addHeader("Authorization", s"Bearer $token") ~> new ShopRoute().route ~> check {
+      status shouldEqual StatusCodes.NotFound
+    }
+  }
+
+  it should "fail when finding the shop to delete fails" in {
+    implicit val repository: ShopRepository = new FailingFindShopRepository
+    val token = JwtUtil.create(admin)
+
+    Delete("/v1/shops/1") ~> addHeader("Authorization", s"Bearer $token") ~> new ShopRoute().route ~> check {
+      status shouldEqual StatusCodes.InternalServerError
+    }
+  }
+
+  it should "return NotModified when deleting the shop fails" in {
+    implicit val repository: ShopRepository = new FailingDeleteShopRepository
+    val token = JwtUtil.create(admin)
+    repository.create(shop1)
+
+    Delete("/v1/shops/1") ~> addHeader("Authorization", s"Bearer $token") ~> new ShopRoute().route ~> check {
+      status shouldEqual StatusCodes.NotModified
+    }
+  }
+
   class FailingFindShopRepository extends InMemoryShopRepository {
     override def findAll(): Future[List[Shop]] =
       Future.failed(new IllegalArgumentException("findAll failed"))
+
+    override def find(id: Int): Future[Option[Shop]] =
+      Future.failed(new IllegalArgumentException("find failed"))
+  }
+
+  class FailingDeleteShopRepository extends InMemoryShopRepository {
+    override def delete(shop: Shop): Future[Unit] =
+      Future.failed(new IllegalArgumentException("delete failed"))
   }
 
 }

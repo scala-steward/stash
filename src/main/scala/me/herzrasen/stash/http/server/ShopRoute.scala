@@ -7,6 +7,7 @@ import akka.http.scaladsl.server.RouteConcatenation
 import akka.http.scaladsl.server.directives._
 import com.typesafe.scalalogging.StrictLogging
 import me.herzrasen.stash.auth.{HmacSecret, JwtDirectives}
+import me.herzrasen.stash.domain.Shop
 import me.herzrasen.stash.json.JsonSupport
 import me.herzrasen.stash.repository.ShopRepository
 
@@ -18,6 +19,7 @@ class ShopRoute()(implicit repository: ShopRepository, hmacSecret: HmacSecret)
     with FutureDirectives
     with JwtDirectives
     with RouteConcatenation
+    with MarshallingDirectives
     with MethodDirectives
     with JsonSupport
     with StrictLogging {
@@ -25,11 +27,43 @@ class ShopRoute()(implicit repository: ShopRepository, hmacSecret: HmacSecret)
   val route: Route =
     pathPrefix("v1" / "shops") {
       pathEnd {
-        get {
-          authorize.apply { _ =>
+        authorize.apply { _ =>
+          get {
             onComplete(repository.findAll()) {
               case Success(shops) =>
                 complete(shops)
+              case Failure(ex) =>
+                complete(StatusCodes.InternalServerError -> ex)
+            }
+          } ~ post {
+            entity(as[String]) { shopName =>
+              logger.info(s"Trying to create shop: $shopName")
+              onComplete(repository.create(Shop(0, shopName))) {
+                case Success(shop) =>
+                  logger.info(s"Shop $shop created")
+                  complete(shop)
+                case Failure(_) =>
+                  complete(StatusCodes.NotModified)
+              }
+            }
+          }
+        }
+      } ~ path(IntNumber) { id =>
+        delete {
+          authorize.apply { _ =>
+            onComplete(repository.find(id)) {
+              case Success(shopOpt) =>
+                shopOpt match {
+                  case Some(shop) =>
+                    onComplete(repository.delete(shop)) {
+                      case Success(_) =>
+                        complete(StatusCodes.OK)
+                      case Failure(_) =>
+                        complete(StatusCodes.NotModified)
+                    }
+                  case None =>
+                    complete(StatusCodes.NotFound)
+                }
               case Failure(ex) =>
                 complete(StatusCodes.InternalServerError -> ex)
             }

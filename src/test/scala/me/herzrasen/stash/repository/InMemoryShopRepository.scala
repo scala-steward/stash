@@ -11,8 +11,13 @@ class InMemoryShopRepository extends ShopRepository {
   override def createTable(): Unit = ()
 
   override def create(shop: Shop): Future[Shop] = {
-    db += shop
-    Future.successful(shop)
+    db.find(_.name == shop.name) match {
+      case Some(_) =>
+        Future.failed(new IllegalArgumentException(s"${shop.name} exists"))
+      case None =>
+        db += shop
+        Future.successful(shop)
+    }
   }
 
   override def delete(shop: Shop): Future[Unit] = {
