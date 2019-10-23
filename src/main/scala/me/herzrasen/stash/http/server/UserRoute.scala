@@ -31,6 +31,8 @@ class UserRoute()(implicit repository: UserRepository, hmacSecret: HmacSecret)
       path(IntNumber) { id =>
         authorize.apply { idFromToken =>
           getUser(id, idFromToken) ~ putPassword(id, idFromToken)
+        } ~ authorizeAdmin.apply {_ =>
+          deleteUser(id)
         }
       } ~
         pathEnd {
@@ -57,6 +59,26 @@ class UserRoute()(implicit repository: UserRepository, hmacSecret: HmacSecret)
                 if !Roles.isAdmin(userFromToken.role) =>
               complete(StatusCodes.Forbidden)
             case (_, _) =>
+              complete(StatusCodes.NotFound)
+          }
+        case Failure(ex) =>
+          complete(StatusCodes.InternalServerError -> ex)
+      }
+    }
+
+  private def deleteUser(id: Int): Route =
+    delete {
+      onComplete(repository.find(id)) {
+        case Success(userOpt) =>
+          userOpt match {
+            case Some(user) =>
+              onComplete(repository.delete(user)) {
+                case Success(_) =>
+                  complete(StatusCodes.OK)
+                case Failure(_) =>
+                  complete(StatusCodes.NotModified)
+              }
+            case None =>
               complete(StatusCodes.NotFound)
           }
         case Failure(ex) =>

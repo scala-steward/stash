@@ -173,7 +173,8 @@ class UserRouteTest
   }
 
   it should "return NotModified when the update fails" in {
-    implicit val repository: UserRepository = new FailingUpdatePasswordUserRepository
+    implicit val repository: UserRepository =
+      new FailingUpdatePasswordUserRepository
     repository.create(user)
     val token = JwtUtil.create(user)
     val newPassword = "mynewpassword"
@@ -234,6 +235,26 @@ class UserRouteTest
       s"Bearer $token"
     ) ~> new UserRoute().route ~> check {
       status shouldEqual StatusCodes.InternalServerError
+    }
+  }
+
+  "DELETE /v1/users/<id>" should "remove the user" in {
+    val token = JwtUtil.create(admin)
+    Delete(s"/v1/users/${user.id}") ~> addHeader(
+      "Authorization",
+      s"Bearer $token"
+    ) ~> new UserRoute().route ~> check {
+      status shouldEqual StatusCodes.OK
+    }
+  }
+
+  it should "not be visible for unprivileged users" in {
+    val token = JwtUtil.create(user)
+    Delete(s"/v1/users/${user.id}") ~> addHeader(
+      "Authorization",
+      s"Bearer $token"
+    ) ~> new UserRoute().route ~> check {
+      rejections should contain (AuthorizationFailedRejection)
     }
   }
 
