@@ -11,6 +11,8 @@ import org.scalatest.{FlatSpec, Matchers}
 
 class JwtUtilTest extends FlatSpec with Matchers {
 
+  implicit val hmacSecret: HmacSecret = HmacSecret("jwt-util")
+
   "An invalid token" should "be expired" in {
     val isExpired = JwtUtil.isExpired("foobarnotatoken")
     isExpired shouldEqual true
@@ -85,7 +87,8 @@ class JwtUtilTest extends FlatSpec with Matchers {
     val token =
       JWT
         .create()
-        .sign(Algorithm.HMAC256("test"))
+        .withIssuer("stash")
+        .sign(Algorithm.HMAC256(hmacSecret.value))
     JwtUtil.isExpired(token) shouldBe false
   }
 

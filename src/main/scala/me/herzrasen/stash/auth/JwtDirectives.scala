@@ -8,13 +8,15 @@ import me.herzrasen.stash.domain._
 
 trait JwtDirectives extends HeaderDirectives with RouteDirectives {
 
-  def authorizeAdmin: Directive1[Int] =
-    authorize(Roles.isAdmin)
+  def authorizeAdmin(implicit hmacSecret: HmacSecret): Directive1[Int] =
+    authorizeInternal(Roles.isAdmin)
 
-  def authorize: Directive1[Int] =
-    authorize(r => !Roles.isUnknown(r))
+  def authorize(implicit hmacSecret: HmacSecret): Directive1[Int] =
+    authorizeInternal(r => !Roles.isUnknown(r))
 
-  private def authorize(f: Role => Boolean): Directive1[Int] =
+  private def authorizeInternal(
+      f: Role => Boolean
+  )(implicit hmacSecret: HmacSecret): Directive1[Int] =
     optionalHeaderValueByName("Authorization").flatMap {
       case Some(token) =>
         BearerToken(token).token match {

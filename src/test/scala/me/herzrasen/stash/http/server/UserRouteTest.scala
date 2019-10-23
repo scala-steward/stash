@@ -4,7 +4,9 @@ import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.AuthorizationFailedRejection
 import akka.http.scaladsl.testkit.ScalatestRouteTest
-import me.herzrasen.stash.auth.JwtUtil
+import com.auth0.jwt.JWT
+import com.auth0.jwt.algorithms.Algorithm
+import me.herzrasen.stash.auth.{HmacSecret, JwtUtil}
 import me.herzrasen.stash.domain.{NewUser, Roles, User}
 import me.herzrasen.stash.json.JsonSupport._
 import me.herzrasen.stash.repository.{InMemoryUserRepository, UserRepository}
@@ -18,6 +20,8 @@ class UserRouteTest
     with Matchers
     with SprayJsonSupport
     with ScalatestRouteTest {
+
+  implicit val hmacSecret: HmacSecret = HmacSecret("user-route-test")
 
   val admin = User(1, "Admin", JwtUtil.hash("test123"), Roles.Admin)
   val user = User(2, "User", JwtUtil.hash("test123"), Roles.User)
@@ -135,6 +139,36 @@ class UserRouteTest
       s"Bearer $token"
     ) ~> new UserRoute().route ~> check {
       rejection shouldEqual AuthorizationFailedRejection
+    }
+  }
+
+  it should "fail when finding the user fails" in {
+    implicit val repository: UserRepository =
+      new FailingFindInMemoryUserRepository
+    val token = JwtUtil.create(user)
+    val newPassword = "mynewpassword"
+    Put(s"/v1/users/${user.id}", newPassword) ~> addHeader(
+      "Authorization",
+      s"Bearer $token"
+    ) ~> new UserRoute().route ~> check {
+      status shouldEqual StatusCodes.InternalServerError
+    }
+  }
+
+  it should "fail when the user is not found" in {
+    val id = 42
+    val token = JWT
+      .create()
+      .withClaim("id", Integer.valueOf(id))
+      .withClaim("role", "user")
+      .withIssuer("stash")
+      .sign(Algorithm.HMAC256(hmacSecret.value))
+    val newPassword = "mynewpassword"
+    Put(s"/v1/users/$id", newPassword) ~> addHeader(
+      "Authorization",
+      s"Bearer $token"
+    ) ~> new UserRoute().route ~> check {
+      status shouldEqual StatusCodes.NotFound
     }
   }
 

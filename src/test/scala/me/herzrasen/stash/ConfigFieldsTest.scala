@@ -23,4 +23,10 @@ class ConfigFieldsTest extends FlatSpec with Matchers {
       ConfigFactory.parseString("""http.server.shutdownDeadline = 30s""")
     config.httpServerShutdownDeadline shouldEqual 30.seconds
   }
+
+  "security.hmacSecret" should "be read from the config" in {
+    val config: Config =
+      ConfigFactory.parseString("""security.hmacSecret = "thisisverysecret"""")
+    config.hmacSecret shouldEqual "thisisverysecret"
+  }
 }

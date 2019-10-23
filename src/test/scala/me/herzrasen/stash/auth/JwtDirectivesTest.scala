@@ -18,6 +18,8 @@ import org.scalatest.{FlatSpec, Matchers}
 
 class JwtDirectivesTest extends FlatSpec with Matchers with ScalatestRouteTest {
 
+  implicit val hmacSecret: HmacSecret = HmacSecret("testsecret")
+
   object TestRoute
       extends JwtDirectives
       with PathDirectives
@@ -26,11 +28,11 @@ class JwtDirectivesTest extends FlatSpec with Matchers with ScalatestRouteTest {
 
     val route: Route =
       path("test") {
-        authorize { id =>
+        authorize.apply { id =>
           complete(s"$id")
         }
       } ~ path("admin") {
-        authorizeAdmin { id =>
+        authorizeAdmin.apply { id =>
           complete(s"$id")
         }
       }

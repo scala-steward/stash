@@ -10,14 +10,14 @@ import akka.http.scaladsl.server.{
   RouteConcatenation
 }
 import com.typesafe.scalalogging.StrictLogging
-import me.herzrasen.stash.auth.{JwtDirectives, JwtUtil}
+import me.herzrasen.stash.auth.{HmacSecret, JwtDirectives, JwtUtil}
 import me.herzrasen.stash.domain.{NewUser, Roles, User}
 import me.herzrasen.stash.json.JsonSupport
 import me.herzrasen.stash.repository.UserRepository
 
 import scala.util.{Failure, Success}
 
-class UserRoute()(implicit repository: UserRepository)
+class UserRoute()(implicit repository: UserRepository, hmacSecret: HmacSecret)
     extends PathDirectives
     with SprayJsonSupport
     with FutureDirectives
@@ -29,12 +29,12 @@ class UserRoute()(implicit repository: UserRepository)
   val route: Route =
     pathPrefix("v1" / "users") {
       path(IntNumber) { id =>
-        authorize { idFromToken =>
+        authorize.apply { idFromToken =>
           getUser(id, idFromToken) ~ putPassword(id, idFromToken)
         }
       } ~
         pathEnd {
-          authorizeAdmin { _ =>
+          authorizeAdmin.apply { _ =>
             getUsers ~
               postUser
           }

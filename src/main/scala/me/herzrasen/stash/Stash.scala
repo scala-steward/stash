@@ -7,6 +7,7 @@ import com.typesafe.config.{Config, ConfigFactory}
 import com.typesafe.scalalogging.StrictLogging
 import io.getquill._
 import me.herzrasen.stash.ConfigFields._
+import me.herzrasen.stash.auth.HmacSecret
 import me.herzrasen.stash.http.server.{Routes, WebServer}
 import me.herzrasen.stash.repository.{PostgresUserRepository, UserRepository}
 
@@ -33,6 +34,7 @@ object Stash extends App with RouteConcatenation with StrictLogging {
     logger.debug("Admin user already exists. No new one created.")
   }
 
+  implicit val hmacSecret: HmacSecret = HmacSecret(config.hmacSecret)
   val webServer: WebServer =
     WebServer.start(config.httpServerInterface, config.httpServerPort, Routes())
 
