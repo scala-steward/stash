@@ -8,7 +8,8 @@ import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import com.auth0.jwt.exceptions.{
   JWTDecodeException,
-  SignatureVerificationException
+  SignatureVerificationException,
+  TokenExpiredException
 }
 import com.auth0.jwt.interfaces.{Claim, DecodedJWT}
 import me.herzrasen.stash.domain.{Roles, User}
@@ -45,19 +46,8 @@ object JwtUtil {
         None
       case _: SignatureVerificationException =>
         None
-    }
-
-  def isExpired(jwt: String)(implicit hmacSecret: HmacSecret): Boolean =
-    decode(jwt) match {
-      case Some(decoded) =>
-        Option(decoded.getExpiresAt) match {
-          case Some(expiresAt) =>
-            expiresAt.toInstant.isBefore(ZonedDateTime.now.toInstant)
-          case None =>
-            false
-        }
-      case None =>
-        true
+      case _: TokenExpiredException =>
+        None
     }
 
   private def extractClaimOr[T](

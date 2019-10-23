@@ -49,7 +49,7 @@ class JwtDirectivesTest extends FlatSpec with Matchers with ScalatestRouteTest {
     }
   }
 
-  it should "be rejected for an User" in {
+  it should "be rejected for an unprivileged User" in {
     val user = User(42, "Test", JwtUtil.hash("mypassword"), Roles.User)
     val token = JwtUtil.create(user)
 
@@ -112,11 +112,12 @@ class JwtDirectivesTest extends FlatSpec with Matchers with ScalatestRouteTest {
     val token =
       JWT
         .create()
+        .withIssuer("stash")
         .withClaim("role", "admin")
         .withExpiresAt(
           Date.from(ZonedDateTime.now().minusMinutes(1).toInstant())
         )
-        .sign(Algorithm.HMAC256("test"))
+        .sign(Algorithm.HMAC256(hmacSecret.value))
 
     Get("/test") ~> addHeader("Authorization", s"Bearer $token") ~> TestRoute.route ~> check {
       rejection shouldEqual AuthorizationFailedRejection
@@ -127,10 +128,28 @@ class JwtDirectivesTest extends FlatSpec with Matchers with ScalatestRouteTest {
     val token =
       JWT
         .create()
+        .withIssuer("stash")
         .withExpiresAt(
           Date.from(ZonedDateTime.now().plusDays(7).toInstant())
         )
-        .sign(Algorithm.HMAC256("test"))
+        .sign(Algorithm.HMAC256(hmacSecret.value))
+
+    Get("/test") ~> addHeader("Authorization", s"Bearer $token") ~> TestRoute.route ~> check {
+      rejection shouldEqual AuthorizationFailedRejection
+    }
+  }
+
+  it should "be rejected for a token without an id claim" in {
+    val token =
+      JWT
+        .create()
+        .withIssuer("stash")
+        .withClaim("role", "user")
+        .withClaim("user", "test")
+        .withExpiresAt(
+          Date.from(ZonedDateTime.now().plusDays(7).toInstant())
+        )
+        .sign(Algorithm.HMAC256(hmacSecret.value))
 
     Get("/test") ~> addHeader("Authorization", s"Bearer $token") ~> TestRoute.route ~> check {
       rejection shouldEqual AuthorizationFailedRejection

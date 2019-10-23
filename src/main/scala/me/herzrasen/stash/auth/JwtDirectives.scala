@@ -21,18 +21,14 @@ trait JwtDirectives extends HeaderDirectives with RouteDirectives {
       case Some(token) =>
         BearerToken(token).token match {
           case Some(bt) =>
-            if (JwtUtil.isExpired(bt)) {
-              reject(AuthorizationFailedRejection)
-            } else {
-              val role = JwtUtil.role(bt)
-              if (f(role)) {
-                JwtUtil.id(bt) match {
-                  case Some(id) => provide(id)
-                  case None => reject(AuthorizationFailedRejection)
-                }
-              } else {
-                reject(AuthorizationFailedRejection)
+            val role = JwtUtil.role(bt)
+            if (f(role)) {
+              JwtUtil.id(bt) match {
+                case Some(id) => provide(id)
+                case None => reject(AuthorizationFailedRejection)
               }
+            } else {
+              reject(AuthorizationFailedRejection)
             }
           case None => reject(AuthorizationFailedRejection)
         }
