@@ -9,7 +9,12 @@ import io.getquill._
 import me.herzrasen.stash.ConfigFields._
 import me.herzrasen.stash.auth.HmacSecret
 import me.herzrasen.stash.http.server.{Routes, WebServer}
-import me.herzrasen.stash.repository.{PostgresUserRepository, UserRepository}
+import me.herzrasen.stash.repository.{
+  PostgresShopRepository,
+  PostgresUserRepository,
+  ShopRepository,
+  UserRepository
+}
 
 import scala.concurrent.ExecutionContext
 
@@ -25,16 +30,20 @@ object Stash extends App with RouteConcatenation with StrictLogging {
   implicit val ctx: PostgresMonixJdbcContext[SnakeCase] =
     new PostgresMonixJdbcContext(SnakeCase, "postgres")
 
-  implicit val repository: UserRepository = new PostgresUserRepository()
-  repository.createTable()
-  repository.initializeAdminUser().map {
+  implicit val userRepository: UserRepository = new PostgresUserRepository()
+  userRepository.createTable()
+  userRepository.initializeAdminUser().map {
     case Some(initialAdminPassword) =>
       logger.info(s"Initial admin password: >>>> $initialAdminPassword <<<<")
     case None =>
-    logger.debug("Admin user already exists. No new one created.")
+      logger.debug("Admin user already exists. No new one created.")
   }
 
+  implicit val shopRepository: ShopRepository = new PostgresShopRepository()
+  shopRepository.createTable()
+
   implicit val hmacSecret: HmacSecret = HmacSecret(config.hmacSecret)
+
   val webServer: WebServer =
     WebServer.start(config.httpServerInterface, config.httpServerPort, Routes())
 
