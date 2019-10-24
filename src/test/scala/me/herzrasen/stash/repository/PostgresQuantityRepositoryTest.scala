@@ -4,16 +4,17 @@ import java.sql.{Connection, DriverManager}
 
 import com.dimafeng.testcontainers.{ForAllTestContainer, PostgreSQLContainer}
 import com.typesafe.config.{Config, ConfigFactory}
-import io.getquill.context.monix.Runner
 import io.getquill.{PostgresMonixJdbcContext, SnakeCase}
-import me.herzrasen.stash.domain.Shop
+import io.getquill.context.monix.Runner
+import me.herzrasen.stash.domain.Quantity
 import org.scalatest.{FlatSpec, Matchers}
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Future}
+import scala.concurrent.duration.Duration
 
-class PostgresShopRepositoryTest
+import scala.concurrent.ExecutionContext.Implicits.global
+
+class PostgresQuantityRepositoryTest
     extends FlatSpec
     with Matchers
     with ForAllTestContainer {
@@ -38,24 +39,24 @@ class PostgresShopRepositoryTest
   }
 
   def dropTable(): Unit = {
-    val dropTable = connection.prepareStatement(Shop.dropTableStatement)
+    val dropTable = connection.prepareStatement(Quantity.dropTableStatement)
     dropTable.execute()
     ()
   }
 
   lazy val config: Config = ConfigFactory.parseString(s"""
-    |postgres {
-    |  dataSourceClassName="org.postgresql.ds.PGSimpleDataSource"
-    |  dataSource {
-    |    databaseName=$databaseName
-    |    portNumber=${container.mappedPort(5432)}
-    |    serverName=${container.containerIpAddress}
-    |    user=$username
-    |  }
-    |  connectionTimeout=30000  
-    | }""".stripMargin)
+     |postgres {
+     |  dataSourceClassName="org.postgresql.ds.PGSimpleDataSource"
+     |  dataSource {
+     |    databaseName=$databaseName
+     |    portNumber=${container.mappedPort(5432)}
+     |    serverName=${container.containerIpAddress}
+     |    user=$username
+     |  }
+     |  connectionTimeout=30000
+     | }""".stripMargin)
 
-  "A Shop" should "be inserted" in {
+  "A Quantity" should "be inserted" in {
     dropTable()
 
     implicit val ctx: PostgresMonixJdbcContext[SnakeCase] =
@@ -65,13 +66,17 @@ class PostgresShopRepositoryTest
         Runner.default
       )
 
-    val repository: ShopRepository = new PostgresShopRepository()
+    val repository: QuantityRepository = new PostgresQuantityRepository()
 
     repository.createTable()
 
-    val foo = Await.result(repository.create(Shop(0, "Foo")), Duration.Inf)
+    val foo = Await.result(
+      repository.create(Quantity(0, "Foobar", Some("Foo"))),
+      Duration.Inf
+    )
     foo.id should not equal 0
-    foo.name shouldEqual "Foo"
+    foo.name shouldEqual "Foobar"
+    foo.abbreviation shouldEqual Some("Foo")
   }
 
   it should "be found" in {
@@ -84,11 +89,12 @@ class PostgresShopRepositoryTest
         Runner.default
       )
 
-    val repository: ShopRepository = new PostgresShopRepository()
+    val repository: QuantityRepository = new PostgresQuantityRepository()
 
     repository.createTable()
 
-    val foo = Await.result(repository.create(Shop(0, "Foo")), Duration.Inf)
+    val foo =
+      Await.result(repository.create(Quantity(0, "Foo", None)), Duration.Inf)
 
     val other = Await.result(repository.find(foo.id), Duration.Inf)
 
@@ -106,11 +112,14 @@ class PostgresShopRepositoryTest
         Runner.default
       )
 
-    val repository: ShopRepository = new PostgresShopRepository()
+    val repository: QuantityRepository = new PostgresQuantityRepository()
 
     repository.createTable()
 
-    val foo = Await.result(repository.create(Shop(0, "Foo")), Duration.Inf)
+    val foo = Await.result(
+      repository.create(Quantity(0, "Foobar", Some("Foo"))),
+      Duration.Inf
+    )
 
     Await.result(repository.delete(foo), Duration.Inf)
 
@@ -119,7 +128,7 @@ class PostgresShopRepositoryTest
     shops shouldBe empty
   }
 
-  "Searching for a non-existant Shop" should "not cause failure" in {
+  "Searching for a non-existant Quantity" should "not cause failure" in {
     dropTable()
 
     implicit val ctx: PostgresMonixJdbcContext[SnakeCase] =
@@ -129,15 +138,15 @@ class PostgresShopRepositoryTest
         Runner.default
       )
 
-    val repository: ShopRepository = new PostgresShopRepository()
+    val repository: QuantityRepository = new PostgresQuantityRepository()
 
     repository.createTable()
 
-    val shop = Await.result(repository.find(9), Duration.Inf)
-    shop shouldEqual None
+    val quantity = Await.result(repository.find(9), Duration.Inf)
+    quantity shouldEqual None
   }
 
-  "All Shops" should "be found" in {
+  "All Quantities" should "be found" in {
     dropTable()
 
     implicit val ctx: PostgresMonixJdbcContext[SnakeCase] =
@@ -147,27 +156,27 @@ class PostgresShopRepositoryTest
         Runner.default
       )
 
-    val repository: ShopRepository = new PostgresShopRepository()
+    val repository: QuantityRepository = new PostgresQuantityRepository()
 
     repository.createTable()
 
     Await.result(
       Future.sequence(
         List(
-          repository.create(Shop(0, "Foo")),
-          repository.create(Shop(0, "Bar")),
-          repository.create(Shop(0, "Baz"))
+          repository.create(Quantity(0, "Foo", None)),
+          repository.create(Quantity(0, "Bar", None)),
+          repository.create(Quantity(0, "Baz", None))
         )
       ),
       Duration.Inf
     )
 
-    val shops = Await.result(repository.findAll(), Duration.Inf)
-    shops should have size 3
+    val quantities = Await.result(repository.findAll(), Duration.Inf)
+    quantities should have size 3
 
-    shops.find(_.name == "Foo") shouldBe defined
-    shops.find(_.name == "Bar") shouldBe defined
-    shops.find(_.name == "Baz") shouldBe defined
+    quantities.find(_.name == "Foo") shouldBe defined
+    quantities.find(_.name == "Bar") shouldBe defined
+    quantities.find(_.name == "Baz") shouldBe defined
   }
 
 }

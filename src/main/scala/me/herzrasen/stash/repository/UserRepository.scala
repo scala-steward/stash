@@ -4,13 +4,10 @@ import me.herzrasen.stash.domain.User
 
 import scala.concurrent.Future
 
-trait UserRepository {
-  def createTable(): Unit
+trait UserRepository extends StashRepository[User, Int] with CreateTable {
+
   def initializeAdminUser(): Future[Option[String]]
-  def create(user: User): Future[User]
-  def delete(user: User): Future[Unit]
-  def findAll(): Future[List[User]]
-  def find(id: Int): Future[Option[User]]
   def find(name: String): Future[Option[User]]
   def updatePassword(user: User, newPassword: String): Future[Unit]
+
 }
