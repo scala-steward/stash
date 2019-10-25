@@ -6,8 +6,10 @@ import akka.http.scaladsl.testkit.ScalatestRouteTest
 import me.herzrasen.stash.auth.{HmacSecret, JwtUtil}
 import me.herzrasen.stash.domain.{Roles, User}
 import me.herzrasen.stash.repository.{
+  InMemoryQuantityRepository,
   InMemoryShopRepository,
   InMemoryUserRepository,
+  QuantityRepository,
   ShopRepository,
   UserRepository
 }
@@ -24,6 +26,8 @@ class RouteTest extends FlatSpec with Matchers with ScalatestRouteTest {
   repository.create(admin)
 
   implicit val shopRepository: ShopRepository = new InMemoryShopRepository()
+  implicit val quantityRepository: QuantityRepository =
+    new InMemoryQuantityRepository()
 
   "The route" should "contain the Auth endpoints" in {
     Get("/v1/token") ~> addCredentials(
@@ -43,6 +47,13 @@ class RouteTest extends FlatSpec with Matchers with ScalatestRouteTest {
   it should "contain the Shop endpoints" in {
     val token = JwtUtil.create(admin)
     Get("/v1/shops") ~> addHeader("Authorization", s"Bearer $token") ~> Routes() ~> check {
+      status shouldEqual StatusCodes.OK
+    }
+  }
+
+  it should "contain the Quantity endpoints" in {
+    val token = JwtUtil.create(admin)
+    Get("/v1/quantities") ~> addHeader("Authorization", s"Bearer $token") ~> Routes() ~> check {
       status shouldEqual StatusCodes.OK
     }
   }

@@ -1,7 +1,7 @@
 package me.herzrasen.stash.json
 
 import me.herzrasen.stash.domain.Roles.Role
-import me.herzrasen.stash.domain.{NewUser, Roles, Shop, User}
+import me.herzrasen.stash.domain.{NewQuantity, NewUser, Quantity, Roles, Shop, User}
 import me.herzrasen.stash.json.JsonSupport._
 import org.scalatest.{FlatSpec, Matchers}
 import spray.json._
@@ -46,6 +46,22 @@ class JsonSupportTest extends FlatSpec with Matchers {
     fromJson shouldEqual shop
   }
 
+  "A Quantity" should "be serialized / deserialized correctly" in {
+    val quantity = Quantity(1000, "Foobar", Some("Foo"))
+    val json = quantity.toJson.prettyPrint
+
+    val fromJson = json.parseJson.convertTo[Quantity]
+    fromJson shouldEqual quantity
+  }
+
+  "A NewQuantity" should "be serialized / deserialized correctly" in {
+    val newQuantity = NewQuantity("Foobar", Some("Foo"))
+    val json = newQuantity.toJson.prettyPrint
+
+    val fromJson = json.parseJson.convertTo[NewQuantity]
+    fromJson shouldEqual newQuantity
+  }
+
   "A User" should "be serialized / deserialized correctly" in {
     val user = User(42, "Test", "mypassword", Roles.User)
     val json = user.toJson.prettyPrint
@@ -60,4 +76,5 @@ class JsonSupportTest extends FlatSpec with Matchers {
 
     json.parseJson.convertTo[NewUser] shouldEqual newUser
   }
+
 }

@@ -1,7 +1,14 @@
 package me.herzrasen.stash.json
 
 import me.herzrasen.stash.domain.Roles.{Role, Unknown}
-import me.herzrasen.stash.domain.{NewUser, Roles, Shop, User}
+import me.herzrasen.stash.domain.{
+  NewQuantity,
+  NewUser,
+  Quantity,
+  Roles,
+  Shop,
+  User
+}
 import spray.json.{DefaultJsonProtocol, JsString, JsValue, RootJsonFormat}
 
 trait JsonSupport extends DefaultJsonProtocol {
@@ -20,7 +27,17 @@ trait JsonSupport extends DefaultJsonProtocol {
 
   implicit val shopFormat: RootJsonFormat[Shop] = jsonFormat2(Shop.apply)
 
-  implicit val newUserFormat: RootJsonFormat[NewUser] = jsonFormat2(NewUser.apply)
+  implicit val quantityFormat: RootJsonFormat[Quantity] = jsonFormat3(
+    Quantity.apply
+  )
+
+  implicit val newQuantityFormat: RootJsonFormat[NewQuantity] = jsonFormat2(
+    NewQuantity.apply
+  )
+
+  implicit val newUserFormat: RootJsonFormat[NewUser] = jsonFormat2(
+    NewUser.apply
+  )
 
   implicit val userFormat: RootJsonFormat[User] = jsonFormat4(User.apply)
 
