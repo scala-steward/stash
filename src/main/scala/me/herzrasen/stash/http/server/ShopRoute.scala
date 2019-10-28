@@ -1,9 +1,8 @@
 package me.herzrasen.stash.http.server
 
-import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import akka.http.scaladsl.model.StatusCodes
-import akka.http.scaladsl.server.RouteConcatenation
+import akka.http.scaladsl.server.{Route, RouteConcatenation}
 import akka.http.scaladsl.server.directives._
 import com.typesafe.scalalogging.StrictLogging
 import me.herzrasen.stash.auth.{HmacSecret, JwtDirectives}
@@ -51,22 +50,7 @@ class ShopRoute()(implicit repository: ShopRepository, hmacSecret: HmacSecret)
       } ~ path(IntNumber) { id =>
         delete {
           authorize.apply { _ =>
-            onComplete(repository.find(id)) {
-              case Success(shopOpt) =>
-                shopOpt match {
-                  case Some(shop) =>
-                    onComplete(repository.delete(shop)) {
-                      case Success(_) =>
-                        complete(StatusCodes.OK)
-                      case Failure(_) =>
-                        complete(StatusCodes.NotModified)
-                    }
-                  case None =>
-                    complete(StatusCodes.NotFound)
-                }
-              case Failure(ex) =>
-                complete(StatusCodes.InternalServerError -> ex)
-            }
+            RouteUtil.findAndRun(id, repository.find, repository.delete)
           }
         }
       }

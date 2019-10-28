@@ -4,18 +4,13 @@ import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.directives._
-import akka.http.scaladsl.server.{
-  AuthorizationFailedRejection,
-  Route,
-  RouteConcatenation
-}
+import akka.http.scaladsl.server.{AuthorizationFailedRejection, Route, RouteConcatenation}
 import com.typesafe.scalalogging.StrictLogging
 import me.herzrasen.stash.auth.{HmacSecret, JwtDirectives, JwtUtil}
 import me.herzrasen.stash.domain.{NewUser, Roles, User}
 import me.herzrasen.stash.json.JsonSupport
 import me.herzrasen.stash.repository.UserRepository
 
-import scala.concurrent.Future
 import scala.util.{Failure, Success}
 
 class UserRoute()(implicit repository: UserRepository, hmacSecret: HmacSecret)
@@ -69,39 +64,22 @@ class UserRoute()(implicit repository: UserRepository, hmacSecret: HmacSecret)
 
   private def deleteUser(id: Int): Route =
     delete {
-      findUserAndRun(id, repository.delete)
+      RouteUtil.findAndRun(id, repository.find, repository.delete)
     }
 
   private def putPassword(id: Int, idFromToken: Int): Route =
     put {
       entity(as[String]) { newPassword =>
         if (id == idFromToken) {
-          findUserAndRun(
+          RouteUtil.findAndRun(
             id,
+            repository.find,
             user => repository.updatePassword(user, JwtUtil.hash(newPassword))
           )
         } else {
           reject(AuthorizationFailedRejection)
         }
       }
-    }
-
-  private def findUserAndRun[T](id: Int, f: User => Future[T]): Route =
-    onComplete(repository.find(id)) {
-      case Success(userOpt) =>
-        userOpt match {
-          case Some(user) =>
-            onComplete(f(user)) {
-              case Success(_) =>
-                complete(StatusCodes.OK)
-              case Failure(_) =>
-                complete(StatusCodes.NotModified)
-            }
-          case None =>
-            complete(StatusCodes.NotFound)
-        }
-      case Failure(ex) =>
-        complete(StatusCodes.InternalServerError -> ex)
     }
 
   private def getUsers: Route =
