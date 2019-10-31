@@ -2,6 +2,7 @@ package me.herzrasen.stash.json
 
 import me.herzrasen.stash.domain.Roles.{Role, Unknown}
 import me.herzrasen.stash.domain.{
+  Item,
   NewQuantity,
   NewUser,
   Quantity,
@@ -40,6 +41,8 @@ trait JsonSupport extends DefaultJsonProtocol {
   )
 
   implicit val userFormat: RootJsonFormat[User] = jsonFormat4(User.apply)
+
+  implicit val itemFormat: RootJsonFormat[Item] = jsonFormat6(Item.apply)
 
 }
 
