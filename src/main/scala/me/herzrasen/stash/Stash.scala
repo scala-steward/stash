@@ -9,7 +9,7 @@ import io.getquill._
 import me.herzrasen.stash.ConfigFields._
 import me.herzrasen.stash.auth.HmacSecret
 import me.herzrasen.stash.http.server.{Routes, WebServer}
-import me.herzrasen.stash.repository.{ItemRepository, PostgresItemRepository, PostgresQuantityRepository, PostgresShopRepository, PostgresUserRepository, QuantityRepository, ShopRepository, UserRepository}
+import me.herzrasen.stash.repository._
 
 import scala.concurrent.ExecutionContext
 
