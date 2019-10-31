@@ -4,7 +4,7 @@ import me.herzrasen.stash.domain.Roles._
 
 case class User(id: Int, name: String, password: String, role: Role)
 
-object User {
+object User extends CreateTableSupport with DropTableSupport {
 
   def createTableStatement: String =
     """CREATE TABLE IF NOT EXISTS stash_user (

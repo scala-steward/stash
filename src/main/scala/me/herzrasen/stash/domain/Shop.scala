@@ -2,7 +2,7 @@ package me.herzrasen.stash.domain
 
 case class Shop(id: Int, name: String)
 
-object Shop {
+object Shop extends CreateTableSupport with DropTableSupport {
 
   def createTableStatement: String =
     """CREATE TABLE IF NOT EXISTS shop (

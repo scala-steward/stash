@@ -19,7 +19,7 @@ class PostgresQuantityRepositoryTest
     with Matchers
     with ForAllTestContainer {
 
-  val databaseName: String = "stash-test"
+  val databaseName: String = "stash-quantity-test"
   val username: String = "stash"
   val password: String = ""
 

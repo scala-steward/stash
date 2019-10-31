@@ -2,7 +2,7 @@ package me.herzrasen.stash.domain
 
 case class Quantity(id: Int, name: String, abbreviation: Option[String])
 
-object Quantity {
+object Quantity extends CreateTableSupport with DropTableSupport {
 
   def createTableStatement: String =
     """CREATE TABLE IF NOT EXISTS quantity (
