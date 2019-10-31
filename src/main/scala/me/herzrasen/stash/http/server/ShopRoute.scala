@@ -36,14 +36,7 @@ class ShopRoute()(implicit repository: ShopRepository, hmacSecret: HmacSecret)
             }
           } ~ post {
             entity(as[String]) { shopName =>
-              logger.info(s"Trying to create shop: $shopName")
-              onComplete(repository.create(Shop(0, shopName))) {
-                case Success(shop) =>
-                  logger.info(s"Shop $shop created")
-                  complete(shop)
-                case Failure(_) =>
-                  complete(StatusCodes.NotModified)
-              }
+              RouteUtil.createAndComplete(Shop(0, shopName), repository.create)
             }
           }
         }

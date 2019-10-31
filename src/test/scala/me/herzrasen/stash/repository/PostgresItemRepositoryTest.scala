@@ -81,7 +81,7 @@ class PostgresItemRepositoryTest
       Await.result(quantityRepository.create(quantity), Duration.Inf)
 
     val newItem = Await.result(
-      repository.create(Item(0, "Testitem", newQuantity.id, 5, 1, newShop.id)),
+      repository.create(Item(0, "Testitem", newShop.id, newQuantity.id, 5, 1)),
       Duration.Inf
     )
 
@@ -112,7 +112,7 @@ class PostgresItemRepositoryTest
       Await.result(quantityRepository.create(quantity), Duration.Inf)
 
     val newItem = Await.result(
-      repository.create(Item(0, "Testitem", newQuantity.id, 5, 1, newShop.id)),
+      repository.create(Item(0, "Testitem", newShop.id, newQuantity.id, 5, 1)),
       Duration.Inf
     )
 
@@ -144,7 +144,7 @@ class PostgresItemRepositoryTest
       Await.result(quantityRepository.create(quantity), Duration.Inf)
 
     val newItem = Await.result(
-      repository.create(Item(0, "Testitem", newQuantity.id, 5, 1, newShop.id)),
+      repository.create(Item(0, "Testitem", newShop.id, newQuantity.id, 5, 1)),
       Duration.Inf
     )
 
@@ -179,7 +179,7 @@ class PostgresItemRepositoryTest
 
     Await.result(
       repository.create(
-        Item(0, "Testitem", newQuantity.id, 5, 1, newShop.id)
+        Item(0, "Testitem", newShop.id, newQuantity.id, 5, 1)
       ),
       Duration.Inf
     )
@@ -189,7 +189,7 @@ class PostgresItemRepositoryTest
 
     Await.result(
       repository.create(
-        Item(0, "new testitem", newQuantity.id, 2, 1, newShop.id)
+        Item(0, "new testitem", newShop.id, newQuantity.id, 2, 1)
       ),
       Duration.Inf
     )

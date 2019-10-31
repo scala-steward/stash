@@ -2,7 +2,12 @@ package me.herzrasen.stash.http.server
 
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import akka.http.scaladsl.model.StatusCodes
-import akka.http.scaladsl.server.directives.{FutureDirectives, MarshallingDirectives, MethodDirectives, PathDirectives}
+import akka.http.scaladsl.server.directives.{
+  FutureDirectives,
+  MarshallingDirectives,
+  MethodDirectives,
+  PathDirectives
+}
 import akka.http.scaladsl.server.{Route, RouteConcatenation}
 import com.typesafe.scalalogging.StrictLogging
 import me.herzrasen.stash.auth.{HmacSecret, JwtDirectives}
@@ -39,17 +44,10 @@ class QuantityRoute()(
           } ~ post {
             entity(as[NewQuantity]) { newQuantity =>
               logger.info(s"Trying to create Quantity: $newQuantity")
-              onComplete(
-                repository.create(
-                  Quantity(0, newQuantity.name, newQuantity.abbreviation)
-                )
-              ) {
-                case Success(quantity) =>
-                  logger.info(s"Quantity $quantity created")
-                  complete(quantity)
-                case Failure(_) =>
-                  complete(StatusCodes.NotModified)
-              }
+              RouteUtil.createAndComplete(
+                Quantity(0, newQuantity.name, newQuantity.abbreviation),
+                repository.create
+              )
             }
           }
         }

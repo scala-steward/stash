@@ -3,10 +3,10 @@ package me.herzrasen.stash.domain
 case class Item(
     id: Int,
     name: String,
+    shopId: Int,
     quantityId: Int,
-    inStock: Int,
-    warnAt: Int,
-    shopId: Int
+    inStock: Float,
+    warnAt: Float
 )
 
 object Item extends CreateTableSupport with DropTableSupport {
@@ -15,10 +15,10 @@ object Item extends CreateTableSupport with DropTableSupport {
     """CREATE TABLE IF NOT EXISTS item (
       |  id SERIAL PRIMARY KEY,
       |  name TEXT NOT NULL,
+      |  shop_id INT NOT NULL REFERENCES shop(id),
       |  quantity_id INT NOT NULL REFERENCES quantity(id),
       |  in_stock NUMERIC NOT NULL,
-      |  warn_at NUMERIC,
-      |  shop_id INT NOT NULL REFERENCES shop(id)
+      |  warn_at NUMERIC
       |)""".stripMargin
 
   def dropTableStatement: String =

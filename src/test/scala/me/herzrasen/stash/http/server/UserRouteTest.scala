@@ -234,7 +234,7 @@ class UserRouteTest
       "Authorization",
       s"Bearer $token"
     ) ~> new UserRoute().route ~> check {
-      status shouldEqual StatusCodes.InternalServerError
+      status shouldEqual StatusCodes.NotModified
     }
   }
 

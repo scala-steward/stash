@@ -6,7 +6,7 @@ import monix.execution.Scheduler
 
 import scala.concurrent.Future
 
-case class PostgresItemRepository()(
+class PostgresItemRepository()(
     implicit ctx: PostgresMonixJdbcContext[SnakeCase]
 ) extends ItemRepository {
 

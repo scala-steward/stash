@@ -1,7 +1,7 @@
 package me.herzrasen.stash.json
 
 import me.herzrasen.stash.domain.Roles.Role
-import me.herzrasen.stash.domain.{NewQuantity, NewUser, Quantity, Roles, Shop, User}
+import me.herzrasen.stash.domain.{Item, NewItem, NewQuantity, NewUser, Quantity, Roles, Shop, User}
 import me.herzrasen.stash.json.JsonSupport._
 import org.scalatest.{FlatSpec, Matchers}
 import spray.json._
@@ -75,6 +75,20 @@ class JsonSupportTest extends FlatSpec with Matchers {
     val json = newUser.toJson.prettyPrint
 
     json.parseJson.convertTo[NewUser] shouldEqual newUser
+  }
+
+  "An Item" should "be serialized / deseerialized corrrectly" in {
+    val item = Item(1000,"Item", 1001, 5, 1, 1002)
+    val json = item.toJson.prettyPrint
+
+    json.parseJson.convertTo[Item] shouldEqual item
+  }
+
+  "A NewItem" should "be serialized / deseerialized corrrectly" in {
+    val newItem = NewItem("Item", 1001, 5, 1, 1002)
+    val json = newItem.toJson.prettyPrint
+
+    json.parseJson.convertTo[NewItem] shouldEqual newItem
   }
 
 }
