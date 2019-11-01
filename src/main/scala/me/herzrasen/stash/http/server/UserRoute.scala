@@ -88,12 +88,7 @@ class UserRoute()(implicit repository: UserRepository, hmacSecret: HmacSecret)
 
   private def getUsers: Route =
     get {
-      onComplete(repository.findAll()) {
-        case Success(users) =>
-          complete(users)
-        case Failure(ex) =>
-          complete(StatusCodes.InternalServerError -> ex)
-      }
+      RouteUtil.findAllAndComplete(repository.findAll)
     }
 
   private def postUser: Route =
