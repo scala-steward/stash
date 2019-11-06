@@ -2,7 +2,6 @@ package me.herzrasen.stash
 
 import akka.actor.ActorSystem
 import akka.http.scaladsl.server._
-import akka.stream.ActorMaterializer
 import com.typesafe.config.{Config, ConfigFactory}
 import com.typesafe.scalalogging.StrictLogging
 import io.getquill._
@@ -19,7 +18,6 @@ object Stash extends App with RouteConcatenation with StrictLogging {
   private val config: Config = ConfigFactory.load()
 
   implicit val system: ActorSystem = ActorSystem("stash")
-  implicit val am: ActorMaterializer = ActorMaterializer()
   implicit val ec: ExecutionContext = ExecutionContext.Implicits.global
 
   implicit val ctx: PostgresMonixJdbcContext[SnakeCase] =

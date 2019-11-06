@@ -3,7 +3,6 @@ package me.herzrasen.stash.http.server
 import akka.actor.ActorSystem
 import akka.http.scaladsl.server.directives.{PathDirectives, RouteDirectives}
 import akka.http.scaladsl.server.{Route, RouteConcatenation}
-import akka.stream.ActorMaterializer
 import org.scalatest.{FlatSpec, Matchers}
 
 import scala.concurrent.duration.Duration
@@ -20,11 +19,9 @@ class WebServerTest extends FlatSpec with Matchers {
       path("test") {
         complete("Hello, Test")
       }
-
   }
 
   implicit val system: ActorSystem = ActorSystem("webServerTest")
-  implicit val am: ActorMaterializer = ActorMaterializer()
   implicit val ec: ExecutionContext = ExecutionContext.Implicits.global
 
   "A WebServer" should "start and stop" in {

@@ -4,7 +4,6 @@ import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.Http.ServerBinding
 import akka.http.scaladsl.server.Route
-import akka.stream.ActorMaterializer
 import me.herzrasen.stash.ConfigFields._
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -27,7 +26,6 @@ object WebServer {
 
   def start(interface: String, port: Int, route: Route)(
       implicit system: ActorSystem,
-      am: ActorMaterializer,
       ec: ExecutionContext
   ): WebServer = {
     val serverBinding = Http().bindAndHandle(route, interface, port)
