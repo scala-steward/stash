@@ -1,5 +1,5 @@
 addSbtPlugin("com.timushev.sbt" % "sbt-updates"            % "0.5.0")
 addSbtPlugin("org.scoverage"    % "sbt-scoverage"          % "1.6.1")
-addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager"    % "1.5.0")
+addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager"    % "1.5.1")
 addSbtPlugin("org.scalastyle"   %% "scalastyle-sbt-plugin" % "1.0.0")
 addSbtPlugin("com.codacy"       % "sbt-codacy-coverage"    % "3.0.3")
