@@ -3,10 +3,11 @@ package me.herzrasen.stash.json
 import me.herzrasen.stash.domain.Roles.Role
 import me.herzrasen.stash.domain.{Item, NewItem, NewQuantity, NewUser, Quantity, Roles, Shop, User}
 import me.herzrasen.stash.json.JsonSupport._
-import org.scalatest.{FlatSpec, Matchers}
 import spray.json._
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
-class JsonSupportTest extends FlatSpec with Matchers {
+class JsonSupportTest extends AnyFlatSpec with Matchers {
 
   "A Role" should "be serialized / deserialized correctly for an Admin" in {
     val role: Role = Roles.Admin

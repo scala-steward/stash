@@ -15,9 +15,10 @@ import me.herzrasen.stash.repository.{
   ShopRepository,
   UserRepository
 }
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
-class RouteTest extends FlatSpec with Matchers with ScalatestRouteTest {
+class RouteTest extends AnyFlatSpec with Matchers with ScalatestRouteTest {
 
   implicit val hmacSecret: HmacSecret = HmacSecret("route-test")
 
