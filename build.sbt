@@ -53,7 +53,7 @@ libraryDependencies ++= Seq(
   "ch.qos.logback"             % "logback-classic"       % "1.2.3",
   "com.typesafe.scala-logging" %% "scala-logging"        % "3.9.2",
   "org.scalatest"              %% "scalatest"            % "3.0.8" % Test,
-  "com.dimafeng"               %% "testcontainers-scala" % "0.33.0" % Test,
+  "com.dimafeng"               %% "testcontainers-scala" % "0.34.0" % Test,
   "org.testcontainers"         % "postgresql"            % "1.12.3" % Test,
   "com.typesafe.akka"          %% "akka-stream-testkit"  % "2.6.0" % Test,
   "com.typesafe.akka"          %% "akka-http-testkit"    % "10.1.10" % Test
