@@ -42,7 +42,7 @@ scalacOptions ++= Seq(
 // format: on
 
 libraryDependencies ++= Seq(
-  "org.postgresql"             % "postgresql"            % "42.2.8",
+  "org.postgresql"             % "postgresql"            % "42.2.9",
   "io.monix"                   %% "monix"                % "3.1.0",
   "io.getquill"                %% "quill-jdbc-monix"     % "3.4.10",
   "com.typesafe.akka"          %% "akka-http"            % "10.1.10",
