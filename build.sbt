@@ -3,7 +3,7 @@ enablePlugins(DockerPlugin)
 
 name := "stash"
 version := "0.1"
-scalaVersion := "2.13.0"
+scalaVersion := "2.13.1"
 
 // format: off
 scalacOptions ++= Seq(
