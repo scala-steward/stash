@@ -1,8 +1,9 @@
 package me.herzrasen.stash.auth
 
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
-class BearerTokenTest extends FlatSpec with Matchers {
+class BearerTokenTest extends AnyFlatSpec with Matchers {
 
   "A BearerToken" should "be created" in {
     val bearerStr =

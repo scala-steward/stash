@@ -2,10 +2,11 @@ package me.herzrasen.stash
 
 import com.typesafe.config.{Config, ConfigFactory}
 import me.herzrasen.stash.ConfigFields._
-import org.scalatest.{FlatSpec, Matchers}
 import scala.concurrent.duration._
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
-class ConfigFieldsTest extends FlatSpec with Matchers {
+class ConfigFieldsTest extends AnyFlatSpec with Matchers {
 
   "http.server.port" should "be read from the config" in {
     val config: Config = ConfigFactory.parseString("http.server.port = 9999")

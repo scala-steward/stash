@@ -44,17 +44,17 @@ scalacOptions ++= Seq(
 libraryDependencies ++= Seq(
   "org.postgresql"             % "postgresql"            % "42.2.8",
   "io.monix"                   %% "monix"                % "3.1.0",
-  "io.getquill"                %% "quill-jdbc-monix"     % "3.4.10",
-  "com.typesafe.akka"          %% "akka-http"            % "10.1.11",
-  "com.typesafe.akka"          %% "akka-http-spray-json" % "10.1.11",
+  "io.getquill"                %% "quill-jdbc-monix"     % "3.5.0",
+  "com.typesafe.akka"          %% "akka-http"            % "10.1.10",
+  "com.typesafe.akka"          %% "akka-http-spray-json" % "10.1.10",
   "com.typesafe.akka"          %% "akka-stream"          % "2.6.0",
   "com.auth0"                  % "java-jwt"              % "3.8.3",
   "com.iheart"                 %% "ficus"                % "1.4.7",
   "ch.qos.logback"             % "logback-classic"       % "1.2.3",
   "com.typesafe.scala-logging" %% "scala-logging"        % "3.9.2",
-  "org.scalatest"              %% "scalatest"            % "3.0.8" % Test,
+  "org.scalatest"              %% "scalatest"            % "3.1.0" % Test,
   "com.dimafeng"               %% "testcontainers-scala" % "0.33.0" % Test,
-  "org.testcontainers"         % "postgresql"            % "1.12.3" % Test,
+  "org.testcontainers"         % "postgresql"            % "1.12.4" % Test,
   "com.typesafe.akka"          %% "akka-stream-testkit"  % "2.6.0" % Test,
   "com.typesafe.akka"          %% "akka-http-testkit"    % "10.1.11" % Test
 )

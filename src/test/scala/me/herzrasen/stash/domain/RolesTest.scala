@@ -1,9 +1,10 @@
 package me.herzrasen.stash.domain
 
 import me.herzrasen.stash.domain.Roles._
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
-class RolesTest extends FlatSpec with Matchers {
+class RolesTest extends AnyFlatSpec with Matchers {
 
   "Parsing from String" should "be Admin" in {
     val admin = Roles.parse("admin")

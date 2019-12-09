@@ -7,15 +7,16 @@ import com.typesafe.config.{Config, ConfigFactory}
 import io.getquill.{PostgresMonixJdbcContext, SnakeCase}
 import io.getquill.context.monix.Runner
 import me.herzrasen.stash.domain.Quantity
-import org.scalatest.{FlatSpec, Matchers}
 
 import scala.concurrent.{Await, Future}
 import scala.concurrent.duration.Duration
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
 class PostgresQuantityRepositoryTest
-    extends FlatSpec
+    extends AnyFlatSpec
     with Matchers
     with ForAllTestContainer {
 
