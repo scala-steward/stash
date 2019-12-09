@@ -52,7 +52,7 @@ libraryDependencies ++= Seq(
   "com.iheart"                 %% "ficus"                % "1.4.7",
   "ch.qos.logback"             % "logback-classic"       % "1.2.3",
   "com.typesafe.scala-logging" %% "scala-logging"        % "3.9.2",
-  "org.scalatest"              %% "scalatest"            % "3.0.8" % Test,
+  "org.scalatest"              %% "scalatest"            % "3.1.0" % Test,
   "com.dimafeng"               %% "testcontainers-scala" % "0.33.0" % Test,
   "org.testcontainers"         % "postgresql"            % "1.12.4" % Test,
   "com.typesafe.akka"          %% "akka-stream-testkit"  % "2.6.0" % Test,

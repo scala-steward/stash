@@ -6,13 +6,14 @@ import akka.http.scaladsl.testkit.ScalatestRouteTest
 import me.herzrasen.stash.auth.{HmacSecret, JwtUtil}
 import me.herzrasen.stash.domain.{Roles, Shop, User}
 import me.herzrasen.stash.repository.{InMemoryShopRepository, ShopRepository}
-import org.scalatest.{FlatSpec, Matchers}
 import me.herzrasen.stash.json.JsonSupport._
 import spray.json._
 
 import scala.concurrent.Future
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
-class ShopRouteTest extends FlatSpec with Matchers with ScalatestRouteTest {
+class ShopRouteTest extends AnyFlatSpec with Matchers with ScalatestRouteTest {
 
   implicit val hmacSecret: HmacSecret = HmacSecret("shop-route-test")
 
