@@ -9,9 +9,10 @@ import me.herzrasen.stash.auth.{HmacSecret, JwtUtil}
 import me.herzrasen.stash.domain.Roles.Admin
 import me.herzrasen.stash.domain.{Roles, User}
 import me.herzrasen.stash.repository.{InMemoryUserRepository, UserRepository}
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
-class AuthRouteTest extends FlatSpec with Matchers with ScalatestRouteTest {
+class AuthRouteTest extends AnyFlatSpec with Matchers with ScalatestRouteTest {
 
   implicit val hmacSecret: HmacSecret = HmacSecret("auth-route-test")
 

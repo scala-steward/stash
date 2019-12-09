@@ -8,13 +8,14 @@ import me.herzrasen.stash.auth.{HmacSecret, JwtUtil}
 import me.herzrasen.stash.domain.{NewQuantity, Quantity, Roles, User}
 import me.herzrasen.stash.json.JsonSupport._
 import me.herzrasen.stash.repository.{InMemoryQuantityRepository, QuantityRepository}
-import org.scalatest.{FlatSpec, Matchers}
 import spray.json._
 
 import scala.concurrent.Future
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
 class QuantityRouteTest
-    extends FlatSpec
+    extends AnyFlatSpec
     with Matchers
     with ScalatestRouteTest
     with SprayJsonSupport {

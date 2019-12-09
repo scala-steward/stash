@@ -7,9 +7,10 @@ import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import me.herzrasen.stash.domain.Roles.Admin
 import me.herzrasen.stash.domain.{Roles, User}
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
-class JwtUtilTest extends FlatSpec with Matchers {
+class JwtUtilTest extends AnyFlatSpec with Matchers {
 
   implicit val hmacSecret: HmacSecret = HmacSecret("jwt-util")
 
