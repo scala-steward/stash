@@ -3,12 +3,13 @@ package me.herzrasen.stash.http.server
 import akka.actor.ActorSystem
 import akka.http.scaladsl.server.directives.{PathDirectives, RouteDirectives}
 import akka.http.scaladsl.server.{Route, RouteConcatenation}
-import org.scalatest.{FlatSpec, Matchers}
 
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, ExecutionContext}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
-class WebServerTest extends FlatSpec with Matchers {
+class WebServerTest extends AnyFlatSpec with Matchers {
 
   object TestRoute
       extends PathDirectives

@@ -14,9 +14,10 @@ import akka.http.scaladsl.testkit.ScalatestRouteTest
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import me.herzrasen.stash.domain.{Roles, User}
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
-class JwtDirectivesTest extends FlatSpec with Matchers with ScalatestRouteTest {
+class JwtDirectivesTest extends AnyFlatSpec with Matchers with ScalatestRouteTest {
 
   implicit val hmacSecret: HmacSecret = HmacSecret("testsecret")
 

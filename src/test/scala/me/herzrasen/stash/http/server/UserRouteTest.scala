@@ -10,13 +10,14 @@ import me.herzrasen.stash.auth.{HmacSecret, JwtUtil}
 import me.herzrasen.stash.domain.{NewUser, Roles, User}
 import me.herzrasen.stash.json.JsonSupport._
 import me.herzrasen.stash.repository.{InMemoryUserRepository, UserRepository}
-import org.scalatest.{FlatSpec, Matchers}
 import spray.json._
 
 import scala.concurrent.Future
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
 class UserRouteTest
-    extends FlatSpec
+    extends AnyFlatSpec
     with Matchers
     with SprayJsonSupport
     with ScalatestRouteTest {
