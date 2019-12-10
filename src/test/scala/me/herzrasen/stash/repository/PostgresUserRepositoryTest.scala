@@ -13,14 +13,15 @@ import me.herzrasen.stash.domain.Roles.{
   User => UserRole
 }
 import me.herzrasen.stash.domain.{Roles, User}
-import org.scalatest.{FlatSpec, Matchers}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Future}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
 class PostgresUserRepositoryTest
-    extends FlatSpec
+    extends AnyFlatSpec
     with Matchers
     with ForAllTestContainer {
 

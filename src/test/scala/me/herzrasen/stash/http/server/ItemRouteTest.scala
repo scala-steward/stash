@@ -8,11 +8,12 @@ import me.herzrasen.stash.auth.{HmacSecret, JwtUtil}
 import me.herzrasen.stash.domain._
 import me.herzrasen.stash.json.JsonSupport._
 import me.herzrasen.stash.repository._
-import org.scalatest.{FlatSpec, Matchers}
 import spray.json._
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
 class ItemRouteTest
-    extends FlatSpec
+    extends AnyFlatSpec
     with Matchers
     with SprayJsonSupport
     with ScalatestRouteTest {
